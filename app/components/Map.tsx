@@ -16,7 +16,7 @@ interface MapProps {
 
 export default function Map({
   cases = [],
-  center = [35.6762, 139.6503], // デフォルトは東京
+  center = [41.786085560648345, 140.7452487945557], // デフォルトは函館
   zoom = 10,
   onMapClick,
   selectedCaseId,
