@@ -13,7 +13,7 @@
 ### 1. リポジトリのクローン
 
 ```bash
-git clone https://github.com/atsu-labs/MBT.git
+git clone <repository-url>
 cd MBT
 ```
 
@@ -125,7 +125,8 @@ npm run deploy
 
 ```bash
 # node_modulesとキャッシュをクリア
-rm -rf node_modules .react-router build
+rm -rf node_modules build
+rm -rf .react-router 2>/dev/null || true
 npm install
 npm run build
 ```
@@ -169,7 +170,15 @@ npm run typecheck
 
 ```bash
 npm run build
+# Cloudflare Pages開発モードで起動（wrangler必要）
 npm run start
+```
+
+または、シンプルなHTTPサーバーで確認：
+
+```bash
+npm run build
+npx serve build/client
 ```
 
 ## 次のステップ
