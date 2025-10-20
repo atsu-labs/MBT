@@ -23,7 +23,8 @@ export default function Map({
 }: MapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<LeafletMap | null>(null);
-  const markersRef = useRef<Map<number, LeafletMarker>>(new Map<number, LeafletMarker>());
+  // ES6 Mapを使用してマーカーを管理
+  const markersRef = useRef<globalThis.Map<number, LeafletMarker>>(new globalThis.Map<number, LeafletMarker>());
   const [isLoaded, setIsLoaded] = useState(false);
 
   // Leafletの動的読み込み

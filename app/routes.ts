@@ -4,7 +4,7 @@ export default [
   index("routes/_index.tsx"),
   
   // 管理画面
-  layout("routes/admin.tsx", [
+  route("admin", "routes/admin.tsx", [
     index("routes/admin._index.tsx"),
     route("cases", "routes/admin.cases._index.tsx"),
     route("cases/new", "routes/admin.cases.new.tsx"),
