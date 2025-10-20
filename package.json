@@ -1,0 +1,42 @@
+{
+  "name": "mbt",
+  "version": "1.0.0",
+  "description": "事案管理システム - Cloudflare Pages + D1 + Remix",
+  "type": "module",
+  "scripts": {
+    "dev": "react-router dev",
+    "build": "react-router build",
+    "start": "wrangler pages dev ./build/client",
+    "deploy": "npm run build && wrangler pages deploy ./build/client",
+    "typecheck": "tsc"
+  },
+  "keywords": [
+    "remix",
+    "cloudflare",
+    "d1",
+    "leaflet",
+    "spa"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@react-router/cloudflare": "^7.9.4",
+    "@react-router/dev": "^7.9.4",
+    "isbot": "^4.4.0",
+    "leaflet": "^1.9.4",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "react-leaflet": "^5.0.0",
+    "react-router": "^7.9.4"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20251011.0",
+    "@types/leaflet": "^1.9.21",
+    "@types/node": "^24.8.1",
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2",
+    "typescript": "^5.9.3",
+    "vite": "^7.1.10",
+    "wrangler": "^4.43.0"
+  }
+}

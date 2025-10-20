@@ -1,0 +1,25 @@
+node_modules
+/.cache
+/build
+.env
+.dev.vars
+.wrangler
+.react-router
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
