@@ -1,10 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import type { Case } from "../lib/types";
+import { firstAid, gate, aid, aed } from "../lib/markers/markers";
+import { course } from "../lib/markers/course";
 
 // Leafletの型定義
 type LeafletMap = any;
 type LeafletMarker = any;
 type LeafletIcon = any;
+type LeafletLayerGroup = any;
+type LeafletGeoJSON = any;
 
 interface MapProps {
   cases?: Case[];
@@ -57,6 +61,114 @@ export default function Map({
         '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
       maxZoom: 19,
     }).addTo(map);
+
+    // マーカーレイヤーグループの作成
+    const firstAidLayer = L.geoJSON(firstAid, {
+      pointToLayer: (feature: any, latlng: any) => {
+        return L.marker(latlng, {
+          icon: L.divIcon({
+            className: "custom-marker",
+            html: `<div style="
+              background-color: #e74c3c;
+              width: 20px;
+              height: 20px;
+              border-radius: 50%;
+              border: 3px solid white;
+              box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            "></div>`,
+            iconSize: [20, 20],
+            iconAnchor: [10, 10],
+          }),
+        }).bindPopup(`<b>${feature.properties.name}</b>`);
+      },
+    });
+
+    const gateLayer = L.geoJSON(gate, {
+      pointToLayer: (feature: any, latlng: any) => {
+        return L.marker(latlng, {
+          icon: L.divIcon({
+            className: "custom-marker",
+            html: `<div style="
+              background-color: #f39c12;
+              width: 20px;
+              height: 20px;
+              border-radius: 50%;
+              border: 3px solid white;
+              box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            "></div>`,
+            iconSize: [20, 20],
+            iconAnchor: [10, 10],
+          }),
+        }).bindPopup(`<b>${feature.properties.name}</b><br/>${feature.properties.comment || ""}`);
+      },
+    });
+
+    const aidLayer = L.geoJSON(aid, {
+      pointToLayer: (feature: any, latlng: any) => {
+        return L.marker(latlng, {
+          icon: L.divIcon({
+            className: "custom-marker",
+            html: `<div style="
+              background-color: #27ae60;
+              width: 20px;
+              height: 20px;
+              border-radius: 50%;
+              border: 3px solid white;
+              box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            "></div>`,
+            iconSize: [20, 20],
+            iconAnchor: [10, 10],
+          }),
+        }).bindPopup(`<b>${feature.properties.name}</b>`);
+      },
+    });
+
+    const aedLayer = L.geoJSON(aed, {
+      pointToLayer: (feature: any, latlng: any) => {
+        return L.marker(latlng, {
+          icon: L.divIcon({
+            className: "custom-marker",
+            html: `<div style="
+              background-color: #3498db;
+              width: 20px;
+              height: 20px;
+              border-radius: 50%;
+              border: 3px solid white;
+              box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            "></div>`,
+            iconSize: [20, 20],
+            iconAnchor: [10, 10],
+          }),
+        }).bindPopup(`<b>${feature.properties.name}</b>`);
+      },
+    });
+
+    const courseLayer = L.geoJSON(course, {
+      style: (feature: any) => {
+        return {
+          color: feature.properties._color || "#000000",
+          opacity: feature.properties._opacity || 0.7,
+          weight: feature.properties._weight || 5,
+        };
+      },
+      onEachFeature: (feature: any, layer: any) => {
+        if (feature.properties.name) {
+          layer.bindPopup(`<b>${feature.properties.name}</b>`);
+        }
+      },
+    });
+
+    // オーバーレイ用のレイヤーグループ
+    const overlayMaps = {
+      "救護所": firstAidLayer,
+      "関門": gateLayer,
+      "エイド": aidLayer,
+      "AED": aedLayer,
+      "コース": courseLayer,
+    };
+
+    // レイヤーコントロールを追加
+    L.control.layers(null, overlayMaps, { collapsed: false }).addTo(map);
 
     // 地図クリックイベント
     if (onMapClick) {
