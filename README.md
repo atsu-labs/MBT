@@ -1,14 +1,28 @@
-# MBT - 事案管理システム
+# MBT - マラソン・イベント管理システム
 
-Cloudflare Pages + D1データベース + Remix（React Router v7）を使用した、位置情報ベースの事案管理システムです。
+Cloudflare Pages + D1データベース + React Router v7を使用した、マラソンやスポーツイベントの運営支援システムです。
+地図上でコース情報、救護所、関門、エイドステーション、AED設置場所を管理し、リアルタイムで発生する事案を追跡できます。
 
 ## 主な機能
 
-- 📍 Leafletを使用した地図上での事案表示
-- 💼 PC向け管理画面（CRUD操作対応）
-- 📱 モバイル向け閲覧画面
-- 🗄️ Cloudflare D1データベースによるデータ永続化
-- 🚀 Cloudflare Pagesへのデプロイ対応
+- 🗺️ **地図表示**: Leafletを使用した高機能な地図インターフェース
+  - マラソンコースの表示
+  - 救護所・関門・エイド・AED位置の可視化
+  - レイヤー切り替えで表示内容をカスタマイズ
+- 📋 **事案管理**: リアルタイムでトラブル・事案を記録
+  - 優先度別の色分け表示（高/中/低）
+  - ステータス管理（対応中/完了）
+  - 地図上で位置を特定
+- 💼 **PC向け管理画面**: 
+  - ダッシュボードで統計情報を確認
+  - 事案のCRUD操作（作成・読取・更新・削除）
+  - 地図上での直感的な位置設定
+- 📱 **モバイル向け閲覧画面**: 
+  - 現場スタッフ向けの簡潔なUI
+  - フィルター機能でステータス別に絞り込み
+  - リスト表示と地図表示の切り替え
+- 🗄️ **データ永続化**: Cloudflare D1データベース（SQLite互換）
+- 🚀 **高速デプロイ**: Cloudflare Pagesで世界中にエッジ配信
 
 ## 技術スタック
 
@@ -119,29 +133,38 @@ npm run deploy
 ```
 MBT/
 ├── app/
-│   ├── components/       # Reactコンポーネント
-│   │   └── Map.tsx      # Leaflet地図コンポーネント
-│   ├── lib/             # ユーティリティ
-│   │   ├── types.ts     # TypeScript型定義
-│   │   └── db.server.ts # D1データベース操作
-│   ├── routes/          # ルート定義
-│   │   ├── _index.tsx   # トップページ
-│   │   ├── admin.tsx    # 管理画面レイアウト
+│   ├── components/          # Reactコンポーネント
+│   │   └── Map.tsx         # Leaflet地図コンポーネント
+│   ├── lib/                # ユーティリティとビジネスロジック
+│   │   ├── types.ts        # TypeScript型定義
+│   │   ├── db.server.ts    # D1データベース操作
+│   │   └── markers/        # マーカーデータ（GeoJSON）
+│   │       ├── markers.ts  # 救護所、関門、エイド、AED
+│   │       └── course.ts   # マラソンコース情報
+│   ├── routes/             # ルート定義（ファイルベースルーティング）
+│   │   ├── _index.tsx      # トップページ
+│   │   ├── admin.tsx       # 管理画面レイアウト
 │   │   ├── admin._index.tsx           # ダッシュボード
 │   │   ├── admin.cases._index.tsx     # 事案一覧
 │   │   ├── admin.cases.new.tsx        # 事案作成
 │   │   ├── admin.cases.$id.tsx        # 事案詳細
 │   │   ├── admin.cases.$id.edit.tsx   # 事案編集
 │   │   └── mobile.tsx                 # モバイル閲覧画面
-│   ├── styles/          # スタイルシート
-│   ├── root.tsx         # ルートコンポーネント
-│   ├── entry.client.tsx # クライアントエントリーポイント
-│   └── entry.server.tsx # サーバーエントリーポイント
-├── migrations/          # D1データベースマイグレーション
-├── public/             # 静的ファイル
-├── wrangler.toml       # Cloudflare設定
-├── vite.config.ts      # Vite設定
-├── tsconfig.json       # TypeScript設定
+│   ├── styles/             # スタイルシート
+│   ├── root.tsx            # ルートコンポーネント
+│   ├── entry.client.tsx    # クライアントエントリーポイント
+│   └── entry.server.tsx    # サーバーエントリーポイント
+├── docs/                   # ドキュメント
+│   ├── SETUP.md           # セットアップガイド
+│   ├── API.md             # API・データベース操作ドキュメント
+│   ├── ARCHITECTURE.md    # システムアーキテクチャ
+│   └── MARKERS.md         # マーカーデータの説明
+├── migrations/             # D1データベースマイグレーション
+│   └── 0001_initial_schema.sql
+├── public/                 # 静的ファイル
+├── wrangler.toml          # Cloudflare設定
+├── vite.config.ts         # Vite設定
+├── tsconfig.json          # TypeScript設定
 └── react-router.config.ts # React Router設定
 ```
 
@@ -179,6 +202,18 @@ npx wrangler d1 execute mbt-db --local --command="SELECT * FROM cases"
 
 ISC
 
+## ドキュメント
+
+詳細なドキュメントは `docs/` ディレクトリに用意されています：
+
+- **[SETUP.md](docs/SETUP.md)** - セットアップガイド（環境構築からデプロイまで）
+- **[API.md](docs/API.md)** - データベースAPI・ルート定義の詳細
+- **[ARCHITECTURE.md](docs/ARCHITECTURE.md)** - システムアーキテクチャと技術スタック
+- **[MARKERS.md](docs/MARKERS.md)** - マーカーデータ（GeoJSON）の説明と編集方法
+- **[CONTRIBUTING.md](docs/CONTRIBUTING.md)** - コントリビューションガイド
+
 ## 貢献
 
 プルリクエストを歓迎します。大きな変更の場合は、まずissueを開いて変更内容を議論してください。
+
+詳細は [CONTRIBUTING.md](docs/CONTRIBUTING.md) をご覧ください。
