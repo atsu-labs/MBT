@@ -11,6 +11,7 @@ import stylesheet from "./styles/app.css?url";
 export const links = () => [
   { rel: "stylesheet", href: stylesheet },
   { rel: "stylesheet", href: "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" },
+  { rel: "stylesheet", href: "https://fonts.googleapis.com/icon?family=Material+Icons" },
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {

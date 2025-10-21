@@ -111,14 +111,19 @@ export default function Map({
             className: "custom-marker",
             html: `<div style="
               background-color: #e74c3c;
-              width: 20px;
-              height: 20px;
+              width: 32px;
+              height: 32px;
               border-radius: 50%;
               border: 3px solid white;
               box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-            "></div>`,
-            iconSize: [20, 20],
-            iconAnchor: [10, 10],
+              display: flex;
+              align-items: center;
+              justify-content: center;
+            ">
+              <span class="material-icons" style="color: white; font-size: 20px;">local_hospital</span>
+            </div>`,
+            iconSize: [32, 32],
+            iconAnchor: [16, 16],
           }),
         }).bindPopup(`<b>${feature.properties.name}</b>`);
       },
@@ -131,14 +136,19 @@ export default function Map({
             className: "custom-marker",
             html: `<div style="
               background-color: #f39c12;
-              width: 20px;
-              height: 20px;
+              width: 32px;
+              height: 32px;
               border-radius: 50%;
               border: 3px solid white;
               box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-            "></div>`,
-            iconSize: [20, 20],
-            iconAnchor: [10, 10],
+              display: flex;
+              align-items: center;
+              justify-content: center;
+            ">
+              <span class="material-icons" style="color: white; font-size: 20px;">flag</span>
+            </div>`,
+            iconSize: [32, 32],
+            iconAnchor: [16, 16],
           }),
         }).bindPopup(`<b>${feature.properties.name}</b><br/>${feature.properties.comment || ""}`);
       },
@@ -151,14 +161,19 @@ export default function Map({
             className: "custom-marker",
             html: `<div style="
               background-color: #27ae60;
-              width: 20px;
-              height: 20px;
+              width: 32px;
+              height: 32px;
               border-radius: 50%;
               border: 3px solid white;
               box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-            "></div>`,
-            iconSize: [20, 20],
-            iconAnchor: [10, 10],
+              display: flex;
+              align-items: center;
+              justify-content: center;
+            ">
+              <span class="material-icons" style="color: white; font-size: 20px;">local_cafe</span>
+            </div>`,
+            iconSize: [32, 32],
+            iconAnchor: [16, 16],
           }),
         }).bindPopup(`<b>${feature.properties.name}</b>`);
       },
@@ -171,14 +186,19 @@ export default function Map({
             className: "custom-marker",
             html: `<div style="
               background-color: #3498db;
-              width: 20px;
-              height: 20px;
+              width: 32px;
+              height: 32px;
               border-radius: 50%;
               border: 3px solid white;
               box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-            "></div>`,
-            iconSize: [20, 20],
-            iconAnchor: [10, 10],
+              display: flex;
+              align-items: center;
+              justify-content: center;
+            ">
+              <span class="material-icons" style="color: white; font-size: 20px;">favorite</span>
+            </div>`,
+            iconSize: [32, 32],
+            iconAnchor: [16, 16],
           }),
         }).bindPopup(`<b>${feature.properties.name}</b>`);
       },
@@ -254,9 +274,24 @@ export default function Map({
       }
     };
 
+    // 優先度に応じたアイコン
+    const getMarkerIcon = (priority: string): string => {
+      switch (priority) {
+        case "high":
+          return "error";
+        case "medium":
+          return "warning";
+        case "low":
+          return "info";
+        default:
+          return "place";
+      }
+    };
+
     // 新しいマーカーを追加
     cases.forEach((caseItem) => {
       const color = getMarkerColor(caseItem.priority);
+      const iconName = getMarkerIcon(caseItem.priority);
       const isSelected = selectedCaseId === caseItem.id;
 
       // カスタムアイコンの作成
@@ -265,16 +300,21 @@ export default function Map({
         html: `
           <div style="
             background-color: ${color};
-            width: ${isSelected ? "30px" : "20px"};
-            height: ${isSelected ? "30px" : "20px"};
+            width: ${isSelected ? "40px" : "32px"};
+            height: ${isSelected ? "40px" : "32px"};
             border-radius: 50%;
             border: 3px solid white;
             box-shadow: 0 2px 5px rgba(0,0,0,0.3);
             transition: all 0.2s;
-          "></div>
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          ">
+            <span class="material-icons" style="color: white; font-size: ${isSelected ? "26px" : "20px"};">${iconName}</span>
+          </div>
         `,
-        iconSize: [isSelected ? 30 : 20, isSelected ? 30 : 20],
-        iconAnchor: [isSelected ? 15 : 10, isSelected ? 15 : 10],
+        iconSize: [isSelected ? 40 : 32, isSelected ? 40 : 32],
+        iconAnchor: [isSelected ? 20 : 16, isSelected ? 20 : 16],
       });
 
       const marker = L.marker([caseItem.latitude, caseItem.longitude], { icon })
