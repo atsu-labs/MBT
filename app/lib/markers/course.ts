@@ -1,4 +1,4 @@
-export var course = 
+export const course = 
 {
     "type": "FeatureCollection",
     "features": [
