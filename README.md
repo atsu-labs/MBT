@@ -210,7 +210,10 @@ ISC
 - **[API.md](docs/API.md)** - データベースAPI・ルート定義の詳細
 - **[ARCHITECTURE.md](docs/ARCHITECTURE.md)** - システムアーキテクチャと技術スタック
 - **[MARKERS.md](docs/MARKERS.md)** - マーカーデータ（GeoJSON）の説明と編集方法
+- **[CONTRIBUTING.md](docs/CONTRIBUTING.md)** - コントリビューションガイド
 
 ## 貢献
 
 プルリクエストを歓迎します。大きな変更の場合は、まずissueを開いて変更内容を議論してください。
+
+詳細は [CONTRIBUTING.md](docs/CONTRIBUTING.md) をご覧ください。
