@@ -1,4 +1,4 @@
-var course = 
+export var course = 
 {
     "type": "FeatureCollection",
     "features": [
@@ -731,4 +731,4 @@ var course =
         }
       }
     ]
-  }
+  };
