@@ -10,14 +10,55 @@ type LeafletIcon = any;
 type LeafletLayerGroup = any;
 type LeafletGeoJSON = any;
 
+/**
+ * Mapコンポーネントのプロパティ
+ */
 interface MapProps {
+  /** 地図上に表示する事案の配列 */
   cases?: Case[];
+  /** 地図の初期中心座標 [緯度, 経度] (デフォルト: 函館) */
   center?: [number, number];
+  /** 地図の初期ズームレベル (デフォルト: 10) */
   zoom?: number;
+  /** 地図クリック時のコールバック関数 */
   onMapClick?: (lat: number, lng: number) => void;
+  /** 選択中の事案ID（選択中の事案は強調表示される） */
   selectedCaseId?: number;
 }
 
+/**
+ * Leaflet地図コンポーネント
+ * 
+ * マラソンイベントの事案管理用の地図を表示します。
+ * 以下の機能を提供：
+ * - 事案マーカーの表示（優先度別に色分け）
+ * - 固定マーカーの表示（救護所、関門、エイド、AED）
+ * - コースラインの表示
+ * - レイヤーコントロール（表示/非表示の切り替え）
+ * - 地図クリックイベント（新規事案作成時の位置選択）
+ * 
+ * @example
+ * ```tsx
+ * // 基本的な使用
+ * <Map cases={cases} />
+ * 
+ * // 地図クリックイベント付き
+ * <Map 
+ *   cases={cases}
+ *   onMapClick={(lat, lng) => {
+ *     setPosition({ latitude: lat, longitude: lng });
+ *   }}
+ * />
+ * 
+ * // 特定の事案を選択
+ * <Map 
+ *   cases={cases}
+ *   selectedCaseId={selectedId}
+ *   center={[41.7869, 140.7369]}
+ *   zoom={14}
+ * />
+ * ```
+ */
 export default function Map({
   cases = [],
   center = [41.786085560648345, 140.7452487945557], // デフォルトは函館
