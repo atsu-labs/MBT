@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import type { Case } from "../lib/types";
 import { firstAid, gate, aid, aed } from "../lib/markers/markers";
 import { course } from "../lib/markers/course";
+import { createCaseMarkerIcon, createCasePopupHTML } from "../lib/markers/caseMarker";
 
 // Leafletの型定義
 type LeafletMap = any;
@@ -260,78 +261,19 @@ export default function Map({
     markers.forEach((marker) => marker.remove());
     markers.clear();
 
-    // 優先度に応じたアイコンカラー
-    const getMarkerColor = (priority: string): string => {
-      switch (priority) {
-        case "high":
-          return "red";
-        case "medium":
-          return "orange";
-        case "low":
-          return "green";
-        default:
-          return "blue";
-      }
-    };
-
-    // 優先度に応じたアイコン
-    const getMarkerIcon = (priority: string): string => {
-      switch (priority) {
-        case "high":
-          return "error";
-        case "medium":
-          return "warning";
-        case "low":
-          return "info";
-        default:
-          return "place";
-      }
-    };
-
     // 新しいマーカーを追加
     cases.forEach((caseItem) => {
-      const color = getMarkerColor(caseItem.priority);
-      const iconName = getMarkerIcon(caseItem.priority);
       const isSelected = selectedCaseId === caseItem.id;
 
-      // カスタムアイコンの作成
-      const icon = L.divIcon({
-        className: "custom-marker",
-        html: `
-          <div style="
-            background-color: ${color};
-            width: ${isSelected ? "40px" : "32px"};
-            height: ${isSelected ? "40px" : "32px"};
-            border-radius: 50%;
-            border: 3px solid white;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-          ">
-            <span class="material-icons" style="color: white; font-size: ${isSelected ? "26px" : "20px"};">${iconName}</span>
-          </div>
-        `,
-        iconSize: [isSelected ? 40 : 32, isSelected ? 40 : 32],
-        iconAnchor: [isSelected ? 20 : 16, isSelected ? 20 : 16],
-      });
+      // キャッシュ付きの純粋関数でアイコンを作成
+      const icon = createCaseMarkerIcon(caseItem, isSelected, L);
+
+      // ポップアップHTMLを純粋関数で生成
+      const popupHTML = createCasePopupHTML(caseItem);
 
       const marker = L.marker([caseItem.latitude, caseItem.longitude], { icon })
         .addTo(map)
-        .bindPopup(
-          `
-          <div style="min-width: 200px;">
-            <h3 style="margin: 0 0 0.5rem 0; font-size: 1rem;">${caseItem.title}</h3>
-            ${caseItem.description ? `<p style="margin: 0 0 0.5rem 0; font-size: 0.9rem;">${caseItem.description}</p>` : ""}
-            <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
-              <span class="badge badge-${caseItem.status}">${caseItem.status}</span>
-              <span class="badge badge-${caseItem.priority}">${caseItem.priority}</span>
-            </div>
-          </div>
-        `,
-          { maxWidth: 300 }
-        );
+        .bindPopup(popupHTML, { maxWidth: 300 });
 
       markers.set(caseItem.id, marker);
 
