@@ -7,9 +7,11 @@ import {
 } from "react-router";
 
 import stylesheet from "./styles/app.css?url";
+import caseMarkerStyles from "./styles/case-marker.css?url";
 
 export const links = () => [
   { rel: "stylesheet", href: stylesheet },
+  { rel: "stylesheet", href: caseMarkerStyles },
   { rel: "stylesheet", href: "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" },
   { rel: "stylesheet", href: "https://fonts.googleapis.com/icon?family=Material+Icons" },
 ];
