@@ -4,6 +4,7 @@ main = "./build/server/index.js"
 
 [assets]
 directory = "./build/client"
+binding = "ASSETS"
 
 # D1データベースバインディング
 [[d1_databases]]
