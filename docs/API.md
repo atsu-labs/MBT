@@ -2,15 +2,10 @@
 
 このドキュメントでは、MBTシステムで使用されるデータ操作の関数とルート構造について説明します。
 
-## 現在の実装について
-
-MBTは現在 **SPAモード**（`ssr: false`）で動作しており、データはブラウザの **LocalStorage** に保存されます。
-`app/lib/db.server.ts` に Cloudflare D1 向けの CRUD 関数が実装済みですが、将来の SSR 移行に備えたものです。
-
-## db.server.ts（将来のD1用API）
+## db.server.ts（D1データベースAPI）
 
 すべてのデータベース操作は `app/lib/db.server.ts` で定義されています。
-**現在はどのルートからも呼び出されていません**が、D1 移行時に使用します。
+各ルートの `loader`/`action` から呼び出されます。
 
 ### 型定義
 
@@ -48,7 +43,7 @@ async function getAllCases(db: D1Database): Promise<Case[]>
 **戻り値:**
 - `Promise<Case[]>` - すべての事案の配列
 
-**使用例（SSR移行後）:**
+**使用例:**
 ```typescript
 export async function loader({ context }: Route.LoaderArgs) {
   const cases = await getAllCases(context.cloudflare.env.DB);
@@ -71,15 +66,15 @@ async function getCaseById(db: D1Database, id: number): Promise<Case | null>
 **戻り値:**
 - `Promise<Case | null>` - 事案が見つかった場合はCaseオブジェクト、見つからない場合はnull
 
-**使用例（SSR移行後）:**
+**使用例:**
 ```typescript
 export async function loader({ params, context }: Route.LoaderArgs) {
-  const caseId = parseInt(params.id);
-  const caseData = await getCaseById(context.cloudflare.env.DB, caseId);
-  if (!caseData) {
+  const id = parseInt(params.id!);
+  const caseItem = await getCaseById(context.cloudflare.env.DB, id);
+  if (!caseItem) {
     throw new Response("Not Found", { status: 404 });
   }
-  return { case: caseData };
+  return { caseItem };
 }
 ```
 
@@ -111,21 +106,19 @@ async function createCase(db: D1Database, newCase: NewCase): Promise<Case>
 **エラー:**
 - 作成に失敗した場合は `Error("Failed to create case")` をスロー
 
-**使用例（SSR移行後）:**
+**使用例:**
 ```typescript
 export async function action({ request, context }: Route.ActionArgs) {
   const formData = await request.formData();
-  const newCase: NewCase = {
+  await createCase(context.cloudflare.env.DB, {
     title: formData.get("title") as string,
-    description: formData.get("description") as string,
+    description: formData.get("description") as string || undefined,
     latitude: parseFloat(formData.get("latitude") as string),
     longitude: parseFloat(formData.get("longitude") as string),
     status: (formData.get("status") as CaseStatus) || "open",
     priority: (formData.get("priority") as CasePriority) || "medium",
-  };
-  
-  const createdCase = await createCase(context.cloudflare.env.DB, newCase);
-  return redirect(`/admin/cases/${createdCase.id}`);
+  });
+  return redirect("/admin/cases");
 }
 ```
 
@@ -164,23 +157,17 @@ async function updateCase(
 - `updated_at` は自動的に現在時刻に更新されます
 - 更新するフィールドがない場合は、現在の事案をそのまま返します
 
-**使用例（SSR移行後）:**
+**使用例:**
 ```typescript
 export async function action({ params, request, context }: Route.ActionArgs) {
-  const caseId = parseInt(params.id);
+  const id = parseInt(params.id!);
   const formData = await request.formData();
-  
-  const updates: UpdateCase = {
+  await updateCase(context.cloudflare.env.DB, id, {
+    title: formData.get("title") as string,
     status: formData.get("status") as CaseStatus,
-  };
-  
-  const updatedCase = await updateCase(
-    context.cloudflare.env.DB,
-    caseId,
-    updates
-  );
-  
-  return { success: true, case: updatedCase };
+    priority: formData.get("priority") as CasePriority,
+  });
+  return redirect(`/admin/cases/${id}`);
 }
 ```
 
@@ -199,39 +186,39 @@ async function deleteCase(db: D1Database, id: number): Promise<boolean>
 **戻り値:**
 - `Promise<boolean>` - 削除が成功した場合はtrue、失敗した場合はfalse
 
-**使用例（SSR移行後）:**
+**使用例:**
 ```typescript
 export async function action({ params, context }: Route.ActionArgs) {
-  const caseId = parseInt(params.id);
-  const success = await deleteCase(context.cloudflare.env.DB, caseId);
-  
-  if (!success) {
-    return { error: "Failed to delete case" };
-  }
-  
+  const id = parseInt(params.id!);
+  await deleteCase(context.cloudflare.env.DB, id);
   return redirect("/admin/cases");
 }
 ```
 
 ## ルート構造
 
-現在のルートは `app/routes.ts` で明示的に定義されています（config-based routing）。
-データ操作はすべて LocalStorage で行われており、HTTP リクエストのメソッド区別はありません。
+ルートは `app/routes.ts` で明示的に定義されています（config-based routing）。
+各ルートはサーバーサイドの `loader`/`action` を持ちます。
 
-### 管理画面ルート（クライアントサイドナビゲーション）
+### 管理画面ルート
 
-- `GET /admin` - ダッシュボード（統計情報と地図）
-- `GET /admin/cases` - 事案一覧（LocalStorage から読み込み）
-- `GET /admin/cases/new` - 新規事案作成フォーム
-- `GET /admin/cases/:id` - 事案詳細
-- `GET /admin/cases/:id/edit` - 事案編集フォーム
-
-> **注意**: 現在の実装では `POST`/`DELETE` などのHTTPメソッドは使用せず、
-> すべての書き込みはフォーム送信後に LocalStorage を直接操作します。
+| メソッド | パス | 処理 |
+|---------|------|------|
+| `GET` | `/admin` | `loader`: `getAllCases` → ダッシュボード表示 |
+| `GET` | `/admin/cases` | `loader`: `getAllCases` → 事案一覧表示 |
+| `POST` | `/admin/cases` | `action`: `deleteCase` → 事案削除後リダイレクト |
+| `GET` | `/admin/cases/new` | 新規事案作成フォーム表示 |
+| `POST` | `/admin/cases/new` | `action`: `createCase` → 作成後 `/admin/cases` へリダイレクト |
+| `GET` | `/admin/cases/:id` | `loader`: `getCaseById` → 事案詳細表示 |
+| `POST` | `/admin/cases/:id` | `action`: `deleteCase` → 削除後 `/admin/cases` へリダイレクト |
+| `GET` | `/admin/cases/:id/edit` | `loader`: `getCaseById` → 事案編集フォーム表示 |
+| `POST` | `/admin/cases/:id/edit` | `action`: `updateCase` → 更新後 `/admin/cases/:id` へリダイレクト |
 
 ### モバイル閲覧ルート
 
-- `GET /mobile` - モバイル用閲覧画面（地図とリスト表示）
+| メソッド | パス | 処理 |
+|---------|------|------|
+| `GET` | `/mobile` | `loader`: `getAllCases` → モバイル閲覧画面表示 |
 
 ## データベーススキーマ
 
@@ -261,33 +248,18 @@ CREATE INDEX IF NOT EXISTS idx_cases_created_at ON cases(created_at);
 
 ## エラーハンドリング
 
-すべてのAPI関数は以下のエラーケースを考慮しています：
+各 `loader`/`action` でサーバーサイドバリデーションを実施しています：
 
-1. **データベース接続エラー**: D1Database が利用できない場合
-2. **存在しないレコード**: `getCaseById`, `updateCase` でIDが見つからない場合
-3. **作成失敗**: `createCase` でINSERTが失敗した場合
-4. **削除失敗**: `deleteCase` でDELETEが失敗した場合
-
-エラーハンドリングの例：
-
-```typescript
-try {
-  const caseData = await getCaseById(db, id);
-  if (!caseData) {
-    return { error: "Case not found" };
-  }
-  // 処理を続行...
-} catch (error) {
-  console.error("Database error:", error);
-  return { error: "Database error occurred" };
-}
-```
+1. **404エラー**: `getCaseById` でIDが見つからない場合 → `throw new Response("Not Found", { status: 404 })`
+2. **バリデーションエラー**: タイトル未入力、緯度経度が数値でない場合 → 400レスポンス
+3. **ID不正エラー**: 正の整数でないIDが渡された場合 → 400レスポンス
+4. **データベース接続エラー**: D1Database が利用できない場合
 
 ## ベストプラクティス
 
 1. **トランザクション**: 複数の操作を行う場合はトランザクションを使用
-2. **バリデーション**: データベースに保存する前に入力値を検証
-3. **エスケープ**: SQLインジェクション対策として、すべての値はバインドパラメータを使用
+2. **サーバーサイドバリデーション**: `action` で入力値を必ず検証
+3. **バインドパラメータ**: SQLインジェクション対策として、すべての値はバインドパラメータを使用
 4. **インデックス**: 頻繁に検索するカラムにはインデックスを作成
 
 ## 参考リンク

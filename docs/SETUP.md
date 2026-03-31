@@ -23,46 +23,21 @@ cd MBT
 npm install
 ```
 
-### 3. 開発サーバーの起動
+### 3. D1データベースのセットアップ
 
-```bash
-npm run dev
-```
-
-ブラウザで http://localhost:5173 を開きます。
-
-### 4. 初期データの作成（オプション）
-
-アプリケーションを起動後、管理画面から事案を作成できます：
-
-1. http://localhost:5173/admin にアクセス
-2. 「新規事案作成」ボタンをクリック
-3. フォームに入力して「作成」をクリック
-
-データはブラウザの **LocalStorage** に保存されます。
-
-## Cloudflare D1データベースのセットアップ（将来の移行用）
-
-> **現在の状態**: MBT は SPA モードで動作しており、データは LocalStorage に保存されます。
-> D1 への移行を計画している場合のみ、以下の手順を実施してください。
-
-### 1. Wranglerのインストールとログイン
+#### Wranglerのログイン
 
 ```bash
 npx wrangler login
 ```
 
-### 2. D1データベースの作成
+#### D1データベースの作成
 
 ```bash
-# 開発用データベース
 npx wrangler d1 create mbt-db
-
-# 本番用データベース
-npx wrangler d1 create mbt-db-production
 ```
 
-### 3. データベースIDの設定
+#### データベースIDの設定
 
 コマンドの出力からdatabase_idをコピーし、`wrangler.toml`を更新：
 
@@ -73,52 +48,56 @@ database_name = "mbt-db"
 database_id = "your-database-id-here"  # ← ここを更新
 ```
 
-### 4. マイグレーションの実行
+#### ローカルマイグレーションの実行
 
 ```bash
-# 開発用
-npx wrangler d1 execute mbt-db --local --file=./migrations/0001_initial_schema.sql
-
-# 本番用
-npx wrangler d1 execute mbt-db-production --remote --file=./migrations/0001_initial_schema.sql
+npm run db:migrate:local
 ```
 
-### 5. D1データベースの確認
+### 4. 開発サーバーの起動
 
 ```bash
-# ローカルで確認
-npx wrangler d1 execute mbt-db --local --command="SELECT * FROM cases"
-
-# 本番で確認
-npx wrangler d1 execute mbt-db-production --remote --command="SELECT * FROM cases"
+npm run dev
 ```
 
-## Cloudflare Pagesへのデプロイ
+ブラウザで http://localhost:5173 を開きます。
 
-### 方法1: CLIでのデプロイ
+### 5. 初期データの作成（オプション）
+
+アプリケーションを起動後、管理画面から事案を作成できます：
+
+1. http://localhost:5173/admin にアクセス
+2. 「新規事案作成」ボタンをクリック
+3. フォームに入力して「作成」をクリック
+
+データは **Cloudflare D1**（ローカルエミュレーション）に保存されます。
+
+## Cloudflare Workersへのデプロイ
+
+### 1. 本番用データベースのマイグレーション
 
 ```bash
-# ビルドとデプロイを一括実行
+npm run db:migrate:remote
+```
+
+### 2. ビルドとデプロイ
+
+```bash
 npm run deploy
 ```
 
 > **注意**: `npm run deploy` は内部で `npm run build` を実行します。
 > `build` コマンドを事前に別途実行する必要はありません。
 
-### 方法2: GitHub連携での自動デプロイ
+### 3. D1データベースの確認
 
-1. [Cloudflare Dashboard](https://dash.cloudflare.com/)にアクセス
-2. "Workers & Pages" > "Create application" > "Pages" > "Connect to Git"
-3. GitHubリポジトリを選択
-4. ビルド設定：
-   - **ビルドコマンド**: `npm run build`
-   - **ビルド出力ディレクトリ**: `build/client`
-   - **Node.jsバージョン**: `20`
-5. 環境変数を設定（必要な場合）
-6. D1データベースバインディングを設定：
-   - Settings > Functions > D1 database bindings
-   - Variable name: `DB`
-   - D1 database: 作成したデータベースを選択
+```bash
+# ローカルで確認
+npx wrangler d1 execute mbt-db --local --command="SELECT * FROM cases"
+
+# 本番で確認
+npx wrangler d1 execute mbt-db --remote --command="SELECT * FROM cases"
+```
 
 ## トラブルシューティング
 
@@ -138,16 +117,6 @@ npm run build
 - Leaflet CSSが正しく読み込まれているか確認
 - ネットワークタブでOpenStreetMapタイルのリクエストを確認
 
-### LocalStorageのデータをクリアしたい
-
-ブラウザの開発者ツールを開き：
-
-```javascript
-localStorage.removeItem('cases');
-```
-
-または、Application タブ > Storage > Local Storage からも削除できます。
-
 ### D1データベースに接続できない
 
 1. `wrangler.toml`のdatabase_idが正しいか確認
@@ -155,7 +124,10 @@ localStorage.removeItem('cases');
    ```bash
    npx wrangler d1 list
    ```
-3. マイグレーションが実行されているか確認
+3. マイグレーションが実行されているか確認：
+   ```bash
+   npm run db:migrate:local
+   ```
 
 ## 開発時のヒント
 
@@ -173,15 +145,8 @@ npm run typecheck
 
 ```bash
 npm run build
-# Cloudflare Pages開発モードで起動（wrangler必要）
+# Cloudflare Workers開発モードで起動（wrangler必要）
 npm run start
-```
-
-または、シンプルなHTTPサーバーで確認：
-
-```bash
-npm run build
-npx serve build/client
 ```
 
 ## 次のステップ

@@ -1,52 +1,26 @@
-import { useState, useEffect } from "react";
-import { useParams, useNavigate, Link } from "react-router";
+import { useLoaderData, redirect, Link, Form } from "react-router";
 import Map from "~/components/Map";
-import type { Case } from "~/lib/types";
+import { getCaseById, deleteCase } from "~/lib/db.server";
+import "~/lib/context";
+import type { Route } from ".react-router/types/app/routes/+types/admin.cases.$id";
+
+export async function loader({ params, context }: Route.LoaderArgs) {
+  const id = parseInt(params.id!);
+  if (isNaN(id) || id <= 0) throw new Response("Not Found", { status: 404 });
+  const caseItem = await getCaseById(context.cloudflare.env.DB, id);
+  if (!caseItem) throw new Response("Not Found", { status: 404 });
+  return { caseItem };
+}
+
+export async function action({ params, context }: Route.ActionArgs) {
+  const id = parseInt(params.id!);
+  if (isNaN(id) || id <= 0) throw new Response("Not Found", { status: 404 });
+  await deleteCase(context.cloudflare.env.DB, id);
+  return redirect("/admin/cases");
+}
 
 export default function CaseDetail() {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const [caseItem, setCaseItem] = useState<Case | null>(null);
-
-  useEffect(() => {
-    const stored = localStorage.getItem("cases");
-    if (stored) {
-      const cases: Case[] = JSON.parse(stored);
-      const found = cases.find((c) => c.id === parseInt(id || "0"));
-      if (found) {
-        setCaseItem(found);
-      } else {
-        navigate("/admin/cases");
-      }
-    } else {
-      navigate("/admin/cases");
-    }
-  }, [id, navigate]);
-
-  const handleDelete = () => {
-    if (!confirm("この事案を削除してもよろしいですか？")) {
-      return;
-    }
-
-    const stored = localStorage.getItem("cases");
-    if (stored) {
-      const cases: Case[] = JSON.parse(stored);
-      const updated = cases.filter((c) => c.id !== parseInt(id || "0"));
-      localStorage.setItem("cases", JSON.stringify(updated));
-    }
-
-    navigate("/admin/cases");
-  };
-
-  if (!caseItem) {
-    return (
-      <div className="container">
-        <div className="loading">
-          <div className="spinner"></div>
-        </div>
-      </div>
-    );
-  }
+  const { caseItem } = useLoaderData<typeof loader>();
 
   return (
     <div className="container">
@@ -78,9 +52,11 @@ export default function CaseDetail() {
             >
               編集
             </Link>
-            <button onClick={handleDelete} className="btn btn-danger">
-              削除
-            </button>
+            <Form method="post" onSubmit={(e) => { if (!confirm("この事案を削除してもよろしいですか？")) e.preventDefault(); }}>
+              <button type="submit" className="btn btn-danger">
+                削除
+              </button>
+            </Form>
           </div>
         </div>
 

@@ -133,15 +133,16 @@ git commit -m "docs: API.mdにエラーハンドリングの例を追加"
  * 
  * @example
  * ```tsx
- * <CaseList filters={{ status: "open" }} />
+ * <CaseList />
  * ```
  */
-export function CaseList({ filters }: CaseListProps) {
-  const [cases, setCases] = useState<Case[]>([]);
+export async function loader({ context }: Route.LoaderArgs) {
+  const cases = await getAllCases(context.cloudflare.env.DB);
+  return { cases };
+}
 
-  useEffect(() => {
-    // データ取得処理
-  }, [filters]);
+export function CaseList() {
+  const { cases } = useLoaderData<typeof loader>();
 
   return (
     <div className="case-list">
@@ -342,7 +343,7 @@ Closes #（Issue番号）
    git push origin v1.0.0
    ```
 4. GitHubでリリースを作成
-5. Cloudflare Pagesにデプロイ
+5. Cloudflare Workersにデプロイ
 
 ## 質問・サポート
 

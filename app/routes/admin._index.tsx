@@ -1,38 +1,23 @@
-import { useState, useEffect } from "react";
-import { Link } from "react-router";
+import { useLoaderData, Link } from "react-router";
 import Map from "~/components/Map";
-import type { Case } from "~/lib/types";
+import { getAllCases } from "~/lib/db.server";
+import "~/lib/context";
+import type { Route } from ".react-router/types/app/routes/+types/admin._index";
+
+export async function loader({ context }: Route.LoaderArgs) {
+  const cases = await getAllCases(context.cloudflare.env.DB);
+  return { cases };
+}
 
 export default function AdminDashboard() {
-  const [cases, setCases] = useState<Case[]>([]);
-  const [stats, setStats] = useState({
-    total: 0,
-    open: 0,
-    closed: 0,
-    high: 0,
-  });
+  const { cases } = useLoaderData<typeof loader>();
 
-  useEffect(() => {
-    // 本番環境ではAPIから取得
-    // 開発時はローカルストレージを使用
-    const loadCases = () => {
-      const stored = localStorage.getItem("cases");
-      if (stored) {
-        const loadedCases: Case[] = JSON.parse(stored);
-        setCases(loadedCases);
-
-        // 統計を計算
-        setStats({
-          total: loadedCases.length,
-          open: loadedCases.filter((c) => c.status === "open").length,
-          closed: loadedCases.filter((c) => c.status === "closed").length,
-          high: loadedCases.filter((c) => c.priority === "high").length,
-        });
-      }
-    };
-
-    loadCases();
-  }, []);
+  const stats = {
+    total: cases.length,
+    open: cases.filter((c) => c.status === "open").length,
+    closed: cases.filter((c) => c.status === "closed").length,
+    high: cases.filter((c) => c.priority === "high").length,
+  };
 
   return (
     <div className="container">

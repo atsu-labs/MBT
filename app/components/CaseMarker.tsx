@@ -13,9 +13,8 @@ const getPriorityColor = (priority: string): string => {
   }
 };
 
-export default function createCaseIcon(caseItem: Case, selected = false) {
+export default function createCaseIcon(caseItem: Case, selected = false, L: any) {
   if (typeof window === "undefined") return null;
-  const L = (window as any).L;
   if (!L) return null;
 
   const color = getPriorityColor(caseItem.priority);

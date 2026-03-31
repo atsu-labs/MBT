@@ -1,23 +1,19 @@
-import { useState, useEffect } from "react";
-import { Link } from "react-router";
+import { useState } from "react";
+import { useLoaderData, Link } from "react-router";
 import Map from "~/components/Map";
-import type { Case } from "~/lib/types";
+import { getAllCases } from "~/lib/db.server";
+import "~/lib/context";
+import type { Route } from ".react-router/types/app/routes/+types/mobile";
+
+export async function loader({ context }: Route.LoaderArgs) {
+  const cases = await getAllCases(context.cloudflare.env.DB);
+  return { cases };
+}
 
 export default function MobileView() {
-  const [cases, setCases] = useState<Case[]>([]);
-  const [selectedCase, setSelectedCase] = useState<Case | null>(null);
+  const { cases } = useLoaderData<typeof loader>();
+  const [selectedCase, setSelectedCase] = useState<(typeof cases)[number] | null>(null);
   const [filterStatus, setFilterStatus] = useState<"all" | "open" | "closed">("all");
-
-  useEffect(() => {
-    loadCases();
-  }, []);
-
-  const loadCases = () => {
-    const stored = localStorage.getItem("cases");
-    if (stored) {
-      setCases(JSON.parse(stored));
-    }
-  };
 
   // フィルタリング
   const filteredCases = cases.filter((c) => {

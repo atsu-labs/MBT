@@ -10,6 +10,7 @@ type LeafletMarker = any;
 type LeafletIcon = any;
 type LeafletLayerGroup = any;
 type LeafletGeoJSON = any;
+type LeafletType = any;
 
 /**
  * Mapコンポーネントのプロパティ
@@ -69,6 +70,8 @@ export default function Map({
 }: MapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<LeafletMap | null>(null);
+  // Leafletモジュールへの参照
+  const leafletRef = useRef<LeafletType | null>(null);
   // ES6 Mapを使用してマーカーを管理
   const markersRef = useRef<globalThis.Map<number, LeafletMarker>>(new globalThis.Map<number, LeafletMarker>());
   const [isLoaded, setIsLoaded] = useState(false);
@@ -78,9 +81,8 @@ export default function Map({
     if (typeof window === "undefined") return;
 
     const loadLeaflet = async () => {
-      if (!(window as any).L) {
-        await import("leaflet");
-      }
+      const leaflet = await import("leaflet");
+      leafletRef.current = leaflet.default;
       setIsLoaded(true);
     };
 
@@ -91,7 +93,7 @@ export default function Map({
   useEffect(() => {
     if (!isLoaded || !mapRef.current || mapInstanceRef.current) return;
 
-    const L = (window as any).L;
+    const L = leafletRef.current;
     if (!L) return;
 
     // 地図の作成
@@ -251,7 +253,7 @@ export default function Map({
   useEffect(() => {
     if (!mapInstanceRef.current || !isLoaded) return;
 
-    const L = (window as any).L;
+    const L = leafletRef.current;
     if (!L) return;
 
     const map = mapInstanceRef.current;
@@ -264,7 +266,7 @@ export default function Map({
     // 新しいマーカーを追加
     cases.forEach((caseItem) => {
       const isSelected = selectedCaseId === caseItem.id;
-      const icon = createCaseIcon(caseItem, isSelected);
+      const icon = createCaseIcon(caseItem, isSelected, L);
       if (!icon) return; // SSR や Leaflet 未ロード時はスキップ
 
       const marker = L.marker([caseItem.latitude, caseItem.longitude], { icon })

@@ -6,9 +6,11 @@
   "scripts": {
     "dev": "react-router dev",
     "build": "react-router build",
-    "start": "wrangler pages dev ./build/client",
-    "deploy": "npm run build && wrangler pages deploy ./build/client",
-    "typecheck": "tsc"
+    "start": "wrangler dev",
+    "deploy": "npm run build && wrangler deploy",
+    "typecheck": "tsc",
+    "db:migrate:local": "wrangler d1 execute mbt-db --local --file=./migrations/0001_initial_schema.sql",
+    "db:migrate:remote": "wrangler d1 execute mbt-db --remote --file=./migrations/0001_initial_schema.sql"
   },
   "keywords": [
     "remix",
