@@ -76,6 +76,12 @@ export default function Map({
   const markersRef = useRef<globalThis.Map<number, LeafletMarker>>(new globalThis.Map<number, LeafletMarker>());
   const [isLoaded, setIsLoaded] = useState(false);
 
+  // コールバックを ref で保持（再レンダリングによる地図の再初期化を防ぐ）
+  const onMapClickRef = useRef(onMapClick);
+  useEffect(() => {
+    onMapClickRef.current = onMapClick;
+  }, [onMapClick]);
+
   // Leafletの動的読み込み
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -97,6 +103,7 @@ export default function Map({
     if (!L) return;
 
     // 地図の作成
+    // center と zoom は初期表示時のみ使用する
     const map = L.map(mapRef.current).setView(center, zoom);
 
     // タイルレイヤーの追加（OpenStreetMap）
@@ -235,11 +242,11 @@ export default function Map({
     L.control.layers(null, overlayMaps, { collapsed: false }).addTo(map);
 
     // 地図クリックイベント
-    if (onMapClick) {
-      map.on("click", (e: any) => {
-        onMapClick(e.latlng.lat, e.latlng.lng);
-      });
-    }
+    map.on("click", (e: any) => {
+      if (onMapClickRef.current) {
+        onMapClickRef.current(e.latlng.lat, e.latlng.lng);
+      }
+    });
 
     mapInstanceRef.current = map;
 
@@ -247,7 +254,7 @@ export default function Map({
       map.remove();
       mapInstanceRef.current = null;
     };
-  }, [isLoaded, center, zoom, onMapClick]);
+  }, [isLoaded]); // center や zoom, onMapClick の変更で再初期化しない
 
   // マーカーの更新
   useEffect(() => {
@@ -293,8 +300,9 @@ export default function Map({
       }
     });
 
-    // マーカーが存在する場合、全てのマーカーが見えるように調整
-    if (cases.length > 0 && !selectedCaseId) {
+    // マーカーが複数存在する場合、全てのマーカーが見えるように調整
+    // 1つの場合は、クリックによる位置選択などの可能性があるため勝手に移動させない
+    if (cases.length > 1 && !selectedCaseId) {
       const bounds = L.latLngBounds(
         cases.map((c) => [c.latitude, c.longitude])
       );

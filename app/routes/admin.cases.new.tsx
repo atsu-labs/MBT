@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Form, redirect } from "react-router";
 import Map from "~/components/Map";
 import { createCase } from "~/lib/db.server";
 import "~/lib/context";
 import type { NewCase, CaseStatus, CasePriority } from "~/lib/types";
 import type { Route } from ".react-router/types/app/routes/+types/admin.cases.new";
+
+const HAKODATE_CENTER: [number, number] = [41.786085560648345, 140.7452487945557];
 
 export async function action({ request, context }: Route.ActionArgs) {
   const formData = await request.formData();
@@ -34,18 +36,29 @@ export default function NewCase() {
   const [formData, setFormData] = useState<NewCase>({
     title: "",
     description: "",
-    latitude: 35.6762,
-    longitude: 139.6503,
+    latitude: HAKODATE_CENTER[0],
+    longitude: HAKODATE_CENTER[1],
     status: "open",
     priority: "medium",
   });
 
-  const handleMapClick = (lat: number, lng: number) => {
-    setFormData({
-      ...formData,
+  const handleMapClick = useCallback((lat: number, lng: number) => {
+    setFormData((prev) => ({
+      ...prev,
       latitude: lat,
       longitude: lng,
-    });
+    }));
+  }, []);
+
+  // プレビュー用のマーカーを表示するための擬似的な事案データ
+  const previewCase: any = {
+    id: 0,
+    title: formData.title || "新規事案（位置選択中）",
+    description: formData.description || "",
+    latitude: formData.latitude,
+    longitude: formData.longitude,
+    status: formData.status || "open",
+    priority: formData.priority || "medium",
   };
 
   return (
@@ -175,8 +188,8 @@ export default function NewCase() {
             地図をクリックして位置を設定できます
           </p>
           <Map
-            cases={[]}
-            center={[formData.latitude, formData.longitude]}
+            cases={[previewCase]}
+            center={HAKODATE_CENTER}
             zoom={13}
             onMapClick={handleMapClick}
           />
