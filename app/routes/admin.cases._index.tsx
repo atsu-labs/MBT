@@ -1,31 +1,35 @@
-import { useState, useEffect } from "react";
-import { Link } from "react-router";
-import type { Case } from "~/lib/types";
+import { useState } from "react";
+import { useLoaderData, useFetcher, Link } from "react-router";
+import { getAllCases, deleteCase } from "~/lib/db.server";
+import "~/lib/context";
+import type { Route } from ".react-router/types/app/routes/+types/admin.cases._index";
+
+export async function loader({ context }: Route.LoaderArgs) {
+  const cases = await getAllCases(context.cloudflare.env.DB);
+  return { cases };
+}
+
+export async function action({ request, context }: Route.ActionArgs) {
+  const formData = await request.formData();
+  const id = parseInt(formData.get("id") as string);
+  if (isNaN(id) || id <= 0) {
+    throw new Response("IDが無効です", { status: 400 });
+  }
+  await deleteCase(context.cloudflare.env.DB, id);
+  return { success: true };
+}
 
 export default function CasesList() {
-  const [cases, setCases] = useState<Case[]>([]);
+  const { cases } = useLoaderData<typeof loader>();
+  const fetcher = useFetcher();
   const [filter, setFilter] = useState<"all" | "open" | "closed">("all");
   const [sortBy, setSortBy] = useState<"created" | "priority">("created");
-
-  useEffect(() => {
-    loadCases();
-  }, []);
-
-  const loadCases = () => {
-    const stored = localStorage.getItem("cases");
-    if (stored) {
-      setCases(JSON.parse(stored));
-    }
-  };
 
   const handleDelete = (id: number) => {
     if (!confirm("この事案を削除してもよろしいですか？")) {
       return;
     }
-
-    const updated = cases.filter((c) => c.id !== id);
-    localStorage.setItem("cases", JSON.stringify(updated));
-    setCases(updated);
+    fetcher.submit({ id: String(id) }, { method: "post" });
   };
 
   // フィルタリングとソート

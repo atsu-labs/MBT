@@ -1,10 +1,36 @@
 import { useState } from "react";
-import { useNavigate } from "react-router";
+import { Form, redirect } from "react-router";
 import Map from "~/components/Map";
+import { createCase } from "~/lib/db.server";
+import "~/lib/context";
 import type { NewCase, CaseStatus, CasePriority } from "~/lib/types";
+import type { Route } from ".react-router/types/app/routes/+types/admin.cases.new";
+
+export async function action({ request, context }: Route.ActionArgs) {
+  const formData = await request.formData();
+  const title = formData.get("title") as string;
+  const latitude = parseFloat(formData.get("latitude") as string);
+  const longitude = parseFloat(formData.get("longitude") as string);
+
+  if (!title || !title.trim()) {
+    throw new Response("タイトルは必須です", { status: 400 });
+  }
+  if (isNaN(latitude) || isNaN(longitude)) {
+    throw new Response("緯度・経度が無効です", { status: 400 });
+  }
+
+  await createCase(context.cloudflare.env.DB, {
+    title: title.trim(),
+    description: (formData.get("description") as string) || undefined,
+    latitude,
+    longitude,
+    status: (formData.get("status") as CaseStatus) || "open",
+    priority: (formData.get("priority") as CasePriority) || "medium",
+  });
+  return redirect("/admin/cases");
+}
 
 export default function NewCase() {
-  const navigate = useNavigate();
   const [formData, setFormData] = useState<NewCase>({
     title: "",
     description: "",
@@ -13,38 +39,6 @@ export default function NewCase() {
     status: "open",
     priority: "medium",
   });
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    // バリデーション
-    if (!formData.title.trim()) {
-      alert("タイトルを入力してください");
-      return;
-    }
-
-    // 既存のケースを取得
-    const stored = localStorage.getItem("cases");
-    const cases = stored ? JSON.parse(stored) : [];
-
-    // 新しいIDを生成
-    const newId = cases.length > 0 ? Math.max(...cases.map((c: any) => c.id)) + 1 : 1;
-
-    // 新しいケースを作成
-    const newCase = {
-      ...formData,
-      id: newId,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    };
-
-    // 保存
-    cases.push(newCase);
-    localStorage.setItem("cases", JSON.stringify(cases));
-
-    // リダイレクト
-    navigate("/admin/cases");
-  };
 
   const handleMapClick = (lat: number, lng: number) => {
     setFormData({
@@ -63,12 +57,13 @@ export default function NewCase() {
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2rem" }}>
         {/* フォーム */}
         <div className="card">
-          <form onSubmit={handleSubmit}>
+          <Form method="post">
             <div className="form-group">
               <label htmlFor="title">タイトル *</label>
               <input
                 type="text"
                 id="title"
+                name="title"
                 value={formData.title}
                 onChange={(e) =>
                   setFormData({ ...formData, title: e.target.value })
@@ -81,6 +76,7 @@ export default function NewCase() {
               <label htmlFor="description">説明</label>
               <textarea
                 id="description"
+                name="description"
                 value={formData.description}
                 onChange={(e) =>
                   setFormData({ ...formData, description: e.target.value })
@@ -93,6 +89,7 @@ export default function NewCase() {
               <input
                 type="number"
                 id="latitude"
+                name="latitude"
                 value={formData.latitude}
                 onChange={(e) =>
                   setFormData({
@@ -110,6 +107,7 @@ export default function NewCase() {
               <input
                 type="number"
                 id="longitude"
+                name="longitude"
                 value={formData.longitude}
                 onChange={(e) =>
                   setFormData({
@@ -126,6 +124,7 @@ export default function NewCase() {
               <label htmlFor="status">ステータス</label>
               <select
                 id="status"
+                name="status"
                 value={formData.status}
                 onChange={(e) =>
                   setFormData({
@@ -143,6 +142,7 @@ export default function NewCase() {
               <label htmlFor="priority">優先度</label>
               <select
                 id="priority"
+                name="priority"
                 value={formData.priority}
                 onChange={(e) =>
                   setFormData({
@@ -161,15 +161,11 @@ export default function NewCase() {
               <button type="submit" className="btn btn-primary">
                 作成
               </button>
-              <button
-                type="button"
-                onClick={() => navigate("/admin/cases")}
-                className="btn btn-secondary"
-              >
+              <a href="/admin/cases" className="btn btn-secondary">
                 キャンセル
-              </button>
+              </a>
             </div>
-          </form>
+          </Form>
         </div>
 
         {/* 地図 */}
@@ -189,3 +185,4 @@ export default function NewCase() {
     </div>
   );
 }
+

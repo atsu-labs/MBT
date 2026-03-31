@@ -1,78 +1,56 @@
-import { useState, useEffect } from "react";
-import { useParams, useNavigate, Link } from "react-router";
+import { useState } from "react";
+import { useLoaderData, redirect, Link, Form } from "react-router";
 import Map from "~/components/Map";
+import { getCaseById, updateCase } from "~/lib/db.server";
+import "~/lib/context";
 import type { Case, CaseStatus, CasePriority } from "~/lib/types";
+import type { Route } from ".react-router/types/app/routes/+types/admin.cases.$id.edit";
+
+export async function loader({ params, context }: Route.LoaderArgs) {
+  const id = parseInt(params.id!);
+  if (isNaN(id) || id <= 0) throw new Response("Not Found", { status: 404 });
+  const caseItem = await getCaseById(context.cloudflare.env.DB, id);
+  if (!caseItem) throw new Response("Not Found", { status: 404 });
+  return { caseItem };
+}
+
+export async function action({ params, request, context }: Route.ActionArgs) {
+  const id = parseInt(params.id!);
+  if (isNaN(id) || id <= 0) throw new Response("Not Found", { status: 404 });
+  const formData = await request.formData();
+  const title = formData.get("title") as string;
+  const latitude = parseFloat(formData.get("latitude") as string);
+  const longitude = parseFloat(formData.get("longitude") as string);
+
+  if (!title || !title.trim()) {
+    throw new Response("タイトルは必須です", { status: 400 });
+  }
+  if (isNaN(latitude) || isNaN(longitude)) {
+    throw new Response("緯度・経度が無効です", { status: 400 });
+  }
+
+  await updateCase(context.cloudflare.env.DB, id, {
+    title: title.trim(),
+    description: (formData.get("description") as string) || undefined,
+    latitude,
+    longitude,
+    status: formData.get("status") as CaseStatus,
+    priority: formData.get("priority") as CasePriority,
+  });
+  return redirect(`/admin/cases/${id}`);
+}
 
 export default function EditCase() {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const [formData, setFormData] = useState<Case | null>(null);
-
-  useEffect(() => {
-    const stored = localStorage.getItem("cases");
-    if (stored) {
-      const cases: Case[] = JSON.parse(stored);
-      const found = cases.find((c) => c.id === parseInt(id || "0"));
-      if (found) {
-        setFormData(found);
-      } else {
-        navigate("/admin/cases");
-      }
-    } else {
-      navigate("/admin/cases");
-    }
-  }, [id, navigate]);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!formData) return;
-
-    // バリデーション
-    if (!formData.title.trim()) {
-      alert("タイトルを入力してください");
-      return;
-    }
-
-    // 既存のケースを取得
-    const stored = localStorage.getItem("cases");
-    if (stored) {
-      const cases: Case[] = JSON.parse(stored);
-      const index = cases.findIndex((c) => c.id === formData.id);
-
-      if (index !== -1) {
-        // 更新
-        cases[index] = {
-          ...formData,
-          updated_at: new Date().toISOString(),
-        };
-        localStorage.setItem("cases", JSON.stringify(cases));
-
-        // リダイレクト
-        navigate(`/admin/cases/${formData.id}`);
-      }
-    }
-  };
+  const { caseItem } = useLoaderData<typeof loader>();
+  const [formData, setFormData] = useState<Case>({ ...caseItem });
 
   const handleMapClick = (lat: number, lng: number) => {
-    if (formData) {
-      setFormData({
-        ...formData,
-        latitude: lat,
-        longitude: lng,
-      });
-    }
+    setFormData({
+      ...formData,
+      latitude: lat,
+      longitude: lng,
+    });
   };
-
-  if (!formData) {
-    return (
-      <div className="container">
-        <div className="loading">
-          <div className="spinner"></div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="container">
@@ -92,12 +70,13 @@ export default function EditCase() {
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2rem" }}>
         {/* フォーム */}
         <div className="card">
-          <form onSubmit={handleSubmit}>
+          <Form method="post">
             <div className="form-group">
               <label htmlFor="title">タイトル *</label>
               <input
                 type="text"
                 id="title"
+                name="title"
                 value={formData.title}
                 onChange={(e) =>
                   setFormData({ ...formData, title: e.target.value })
@@ -110,6 +89,7 @@ export default function EditCase() {
               <label htmlFor="description">説明</label>
               <textarea
                 id="description"
+                name="description"
                 value={formData.description || ""}
                 onChange={(e) =>
                   setFormData({ ...formData, description: e.target.value })
@@ -122,6 +102,7 @@ export default function EditCase() {
               <input
                 type="number"
                 id="latitude"
+                name="latitude"
                 value={formData.latitude}
                 onChange={(e) =>
                   setFormData({
@@ -139,6 +120,7 @@ export default function EditCase() {
               <input
                 type="number"
                 id="longitude"
+                name="longitude"
                 value={formData.longitude}
                 onChange={(e) =>
                   setFormData({
@@ -155,6 +137,7 @@ export default function EditCase() {
               <label htmlFor="status">ステータス</label>
               <select
                 id="status"
+                name="status"
                 value={formData.status}
                 onChange={(e) =>
                   setFormData({
@@ -172,6 +155,7 @@ export default function EditCase() {
               <label htmlFor="priority">優先度</label>
               <select
                 id="priority"
+                name="priority"
                 value={formData.priority}
                 onChange={(e) =>
                   setFormData({
@@ -190,15 +174,14 @@ export default function EditCase() {
               <button type="submit" className="btn btn-primary">
                 更新
               </button>
-              <button
-                type="button"
-                onClick={() => navigate(`/admin/cases/${formData.id}`)}
+              <a
+                href={`/admin/cases/${formData.id}`}
                 className="btn btn-secondary"
               >
                 キャンセル
-              </button>
+              </a>
             </div>
-          </form>
+          </Form>
         </div>
 
         {/* 地図 */}
