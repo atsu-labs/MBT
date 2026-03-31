@@ -11,6 +11,12 @@ export async function loader({ context }: Route.LoaderArgs) {
 
 export default function AdminDashboard() {
   const { cases } = useLoaderData<typeof loader>();
+  const recentCases = [...cases]
+    .sort(
+      (left, right) =>
+        new Date(right.created_at).getTime() - new Date(left.created_at).getTime()
+    )
+    .slice(0, 6);
 
   const stats = {
     total: cases.length,
@@ -20,99 +26,99 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="container">
-      <h2 style={{ marginBottom: "1.5rem", fontSize: "1.8rem" }}>
-        ダッシュボード
-      </h2>
-
+    <div className="container dashboard-container">
       {/* 統計カード */}
-      <div className="grid" style={{ marginBottom: "2rem" }}>
-        <div className="card">
-          <h3 style={{ fontSize: "0.9rem", color: "#666", marginBottom: "0.5rem" }}>
+      <div className="dashboard-stats">
+        <div className="card dashboard-stat-card">
+          <h3 className="dashboard-stat-label">
             総事案数
           </h3>
-          <p style={{ fontSize: "2rem", fontWeight: "bold", color: "#2c3e50" }}>
+          <p className="dashboard-stat-value dashboard-stat-value-total">
             {stats.total}
           </p>
         </div>
-        <div className="card">
-          <h3 style={{ fontSize: "0.9rem", color: "#666", marginBottom: "0.5rem" }}>
+        <div className="card dashboard-stat-card">
+          <h3 className="dashboard-stat-label">
             対応中
           </h3>
-          <p style={{ fontSize: "2rem", fontWeight: "bold", color: "#3498db" }}>
+          <p className="dashboard-stat-value dashboard-stat-value-open">
             {stats.open}
           </p>
         </div>
-        <div className="card">
-          <h3 style={{ fontSize: "0.9rem", color: "#666", marginBottom: "0.5rem" }}>
+        <div className="card dashboard-stat-card">
+          <h3 className="dashboard-stat-label">
             完了
           </h3>
-          <p style={{ fontSize: "2rem", fontWeight: "bold", color: "#95a5a6" }}>
+          <p className="dashboard-stat-value dashboard-stat-value-closed">
             {stats.closed}
           </p>
         </div>
-        <div className="card">
-          <h3 style={{ fontSize: "0.9rem", color: "#666", marginBottom: "0.5rem" }}>
+        <div className="card dashboard-stat-card">
+          <h3 className="dashboard-stat-label">
             高優先度
           </h3>
-          <p style={{ fontSize: "2rem", fontWeight: "bold", color: "#e74c3c" }}>
+          <p className="dashboard-stat-value dashboard-stat-value-high">
             {stats.high}
           </p>
         </div>
       </div>
 
-      {/* 地図 */}
-      <div className="card">
-        <div className="card-header">
-          <h3 className="card-title">事案マップ</h3>
-          <Link to="/admin/cases/new" className="btn btn-primary">
-            新規事案作成
-          </Link>
+      <div className="dashboard-main">
+        {/* 地図 */}
+        <div className="card dashboard-panel dashboard-map-panel">
+          <div className="card-header dashboard-panel-header">
+            <h3 className="card-title">事案マップ</h3>
+            <Link to="/admin/cases/new" className="btn btn-primary">
+              新規事案作成
+            </Link>
+          </div>
+          <div className="dashboard-map-wrapper">
+            <Map cases={cases} />
+          </div>
         </div>
-        <Map cases={cases} />
-      </div>
 
-      {/* 最近の事案 */}
-      <div className="card">
-        <div className="card-header">
-          <h3 className="card-title">最近の事案</h3>
-          <Link to="/admin/cases">すべて表示</Link>
-        </div>
-        {cases.length === 0 ? (
-          <p style={{ textAlign: "center", color: "#666", padding: "2rem" }}>
-            事案がまだ登録されていません。
-          </p>
-        ) : (
-          <ul className="case-list">
-            {cases.slice(0, 5).map((caseItem) => (
-              <li key={caseItem.id} className="case-item">
-                <Link
-                  to={`/admin/cases/${caseItem.id}`}
-                  style={{ textDecoration: "none", color: "inherit" }}
-                >
-                  <div className="case-item-header">
-                    <span className="case-item-title">{caseItem.title}</span>
-                    <div style={{ display: "flex", gap: "0.5rem" }}>
-                      <span className={`badge badge-${caseItem.status}`}>
-                        {caseItem.status}
-                      </span>
-                      <span className={`badge badge-${caseItem.priority}`}>
-                        {caseItem.priority}
-                      </span>
+        {/* 最近の事案 */}
+        <div className="card dashboard-panel dashboard-cases-panel">
+          <div className="card-header dashboard-panel-header">
+            <h3 className="card-title">最近の事案</h3>
+            <Link to="/admin/cases">すべて表示</Link>
+          </div>
+          {recentCases.length === 0 ? (
+            <p className="dashboard-empty-state">
+              事案がまだ登録されていません。
+            </p>
+          ) : (
+            <ul className="case-list dashboard-case-list">
+              {recentCases.map((caseItem) => (
+                <li key={caseItem.id} className="case-item dashboard-case-item">
+                  <Link
+                    to={`/admin/cases/${caseItem.id}`}
+                    className="dashboard-case-link"
+                  >
+                    <div className="case-item-header dashboard-case-item-header">
+                      <span className="case-item-title dashboard-case-item-title">{caseItem.title}</span>
+                      <div className="dashboard-case-badges">
+                        <span className={`badge badge-${caseItem.status}`}>
+                          {caseItem.status}
+                        </span>
+                        <span className={`badge badge-${caseItem.priority}`}>
+                          {caseItem.priority}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                  {caseItem.description && (
-                    <p style={{ color: "#666", fontSize: "0.9rem" }}>
-                      {caseItem.description.length > 100
-                        ? `${caseItem.description.slice(0, 100)}...`
-                        : caseItem.description}
-                    </p>
-                  )}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        )}
+                    {caseItem.description && (
+                      <p className="dashboard-case-description">
+                        {caseItem.description.length > 80
+                          ? `${caseItem.description.slice(0, 80)}...`
+                          : caseItem.description}
+                      </p>
+                    )}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </div>
     </div>
   );

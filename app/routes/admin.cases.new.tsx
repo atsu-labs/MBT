@@ -62,15 +62,27 @@ export default function NewCase() {
   };
 
   return (
-    <div className="container">
-      <h2 style={{ marginBottom: "1.5rem", fontSize: "1.8rem" }}>
-        新規事案作成
-      </h2>
+    <div className="container case-new-container">
+      <div className="case-new-layout">
+        {/* 地図 */}
+        <div className="card case-new-panel case-new-map-panel">
+          <div className="case-new-map-header">
+            <h3 className="card-title">位置を選択</h3>
+            <p className="case-new-map-hint">地図をクリックして位置を設定できます</p>
+          </div>
+          <div className="case-new-map-wrapper">
+            <Map
+              cases={[previewCase]}
+              center={HAKODATE_CENTER}
+              zoom={13}
+              onMapClick={handleMapClick}
+            />
+          </div>
+        </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2rem" }}>
         {/* フォーム */}
-        <div className="card">
-          <Form method="post">
+        <div className="card case-new-panel case-new-form-panel">
+          <Form method="post" className="case-new-form">
             <div className="form-group">
               <label htmlFor="title">タイトル *</label>
               <input
@@ -170,7 +182,7 @@ export default function NewCase() {
               </select>
             </div>
 
-            <div style={{ display: "flex", gap: "1rem", marginTop: "1.5rem" }}>
+            <div className="case-new-actions">
               <button type="submit" className="btn btn-primary">
                 作成
               </button>
@@ -180,22 +192,7 @@ export default function NewCase() {
             </div>
           </Form>
         </div>
-
-        {/* 地図 */}
-        <div className="card">
-          <h3 style={{ marginBottom: "1rem" }}>位置を選択</h3>
-          <p style={{ color: "#666", marginBottom: "1rem", fontSize: "0.9rem" }}>
-            地図をクリックして位置を設定できます
-          </p>
-          <Map
-            cases={[previewCase]}
-            center={HAKODATE_CENTER}
-            zoom={13}
-            onMapClick={handleMapClick}
-          />
-        </div>
       </div>
     </div>
   );
 }
-
