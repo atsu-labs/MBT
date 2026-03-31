@@ -1,10 +1,16 @@
 # API ドキュメント
 
-このドキュメントでは、MBTシステムで使用されるデータベースAPI関数について説明します。
+このドキュメントでは、MBTシステムで使用されるデータ操作の関数とルート構造について説明します。
 
-## データベースAPI
+## 現在の実装について
+
+MBTは現在 **SPAモード**（`ssr: false`）で動作しており、データはブラウザの **LocalStorage** に保存されます。
+`app/lib/db.server.ts` に Cloudflare D1 向けの CRUD 関数が実装済みですが、将来の SSR 移行に備えたものです。
+
+## db.server.ts（将来のD1用API）
 
 すべてのデータベース操作は `app/lib/db.server.ts` で定義されています。
+**現在はどのルートからも呼び出されていません**が、D1 移行時に使用します。
 
 ### 型定義
 
@@ -42,7 +48,7 @@ async function getAllCases(db: D1Database): Promise<Case[]>
 **戻り値:**
 - `Promise<Case[]>` - すべての事案の配列
 
-**使用例:**
+**使用例（SSR移行後）:**
 ```typescript
 export async function loader({ context }: Route.LoaderArgs) {
   const cases = await getAllCases(context.cloudflare.env.DB);
@@ -65,7 +71,7 @@ async function getCaseById(db: D1Database, id: number): Promise<Case | null>
 **戻り値:**
 - `Promise<Case | null>` - 事案が見つかった場合はCaseオブジェクト、見つからない場合はnull
 
-**使用例:**
+**使用例（SSR移行後）:**
 ```typescript
 export async function loader({ params, context }: Route.LoaderArgs) {
   const caseId = parseInt(params.id);
@@ -105,7 +111,7 @@ async function createCase(db: D1Database, newCase: NewCase): Promise<Case>
 **エラー:**
 - 作成に失敗した場合は `Error("Failed to create case")` をスロー
 
-**使用例:**
+**使用例（SSR移行後）:**
 ```typescript
 export async function action({ request, context }: Route.ActionArgs) {
   const formData = await request.formData();
@@ -158,7 +164,7 @@ async function updateCase(
 - `updated_at` は自動的に現在時刻に更新されます
 - 更新するフィールドがない場合は、現在の事案をそのまま返します
 
-**使用例:**
+**使用例（SSR移行後）:**
 ```typescript
 export async function action({ params, request, context }: Route.ActionArgs) {
   const caseId = parseInt(params.id);
@@ -193,7 +199,7 @@ async function deleteCase(db: D1Database, id: number): Promise<boolean>
 **戻り値:**
 - `Promise<boolean>` - 削除が成功した場合はtrue、失敗した場合はfalse
 
-**使用例:**
+**使用例（SSR移行後）:**
 ```typescript
 export async function action({ params, context }: Route.ActionArgs) {
   const caseId = parseInt(params.id);
@@ -209,16 +215,19 @@ export async function action({ params, context }: Route.ActionArgs) {
 
 ## ルート構造
 
-### 管理画面ルート
+現在のルートは `app/routes.ts` で明示的に定義されています（config-based routing）。
+データ操作はすべて LocalStorage で行われており、HTTP リクエストのメソッド区別はありません。
+
+### 管理画面ルート（クライアントサイドナビゲーション）
 
 - `GET /admin` - ダッシュボード（統計情報と地図）
-- `GET /admin/cases` - 事案一覧
+- `GET /admin/cases` - 事案一覧（LocalStorage から読み込み）
 - `GET /admin/cases/new` - 新規事案作成フォーム
-- `POST /admin/cases/new` - 新規事案作成アクション
 - `GET /admin/cases/:id` - 事案詳細
 - `GET /admin/cases/:id/edit` - 事案編集フォーム
-- `POST /admin/cases/:id/edit` - 事案更新アクション
-- `DELETE /admin/cases/:id` - 事案削除アクション
+
+> **注意**: 現在の実装では `POST`/`DELETE` などのHTTPメソッドは使用せず、
+> すべての書き込みはフォーム送信後に LocalStorage を直接操作します。
 
 ### モバイル閲覧ルート
 
