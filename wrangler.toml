@@ -9,4 +9,4 @@ directory = "./build/client"
 [[d1_databases]]
 binding = "DB"
 database_name = "mbt-db"
-database_id = "YOUR_DATABASE_ID"
+database_id = "091efb26-c7d3-4e9b-81b4-0534260dc054"
