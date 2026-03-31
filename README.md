@@ -148,6 +148,8 @@ MBT/
 │   ├── API.md             # API・データベース操作ドキュメント
 │   ├── ARCHITECTURE.md    # システムアーキテクチャ
 │   └── MARKERS.md         # マーカーデータの説明
+├── workers/            # Cloudflare Workersエントリーポイント
+│   └── app.ts         # Workers ESMエントリーポイント
 ├── migrations/             # D1データベースマイグレーション
 │   └── 0001_initial_schema.sql
 ├── wrangler.toml          # Cloudflare Workers設定
