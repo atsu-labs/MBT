@@ -39,11 +39,12 @@ npm run dev
 2. 「新規事案作成」ボタンをクリック
 3. フォームに入力して「作成」をクリック
 
-データはブラウザのLocalStorageに保存されます。
+データはブラウザの **LocalStorage** に保存されます。
 
-## Cloudflare D1データベースのセットアップ
+## Cloudflare D1データベースのセットアップ（将来の移行用）
 
-本番環境でD1データベースを使用する場合：
+> **現在の状態**: MBT は SPA モードで動作しており、データは LocalStorage に保存されます。
+> D1 への移行を計画している場合のみ、以下の手順を実施してください。
 
 ### 1. Wranglerのインストールとログイン
 
@@ -97,12 +98,12 @@ npx wrangler d1 execute mbt-db-production --remote --command="SELECT * FROM case
 ### 方法1: CLIでのデプロイ
 
 ```bash
-# ビルド
-npm run build
-
-# デプロイ
+# ビルドとデプロイを一括実行
 npm run deploy
 ```
+
+> **注意**: `npm run deploy` は内部で `npm run build` を実行します。
+> `build` コマンドを事前に別途実行する必要はありません。
 
 ### 方法2: GitHub連携での自動デプロイ
 
@@ -144,6 +145,8 @@ npm run build
 ```javascript
 localStorage.removeItem('cases');
 ```
+
+または、Application タブ > Storage > Local Storage からも削除できます。
 
 ### D1データベースに接続できない
 
