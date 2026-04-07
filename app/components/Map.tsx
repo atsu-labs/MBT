@@ -25,7 +25,6 @@ interface MapProps {
   /** 地図クリック時のコールバック関数 */
   onMapClick?: (lat: number, lng: number) => void;
   /** 選択中の事案ID（選択中の事案は強調表示される） */
-  /** 選択中の事案ID（選択中の事案は強調表示される） */
   selectedCaseId?: number;
   /** 他ユーザーおよび自分の位置情報の配列 */
   userLocations?: UserLocation[];
