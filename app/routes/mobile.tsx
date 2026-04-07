@@ -81,7 +81,7 @@ export default function MobileView() {
       try {
         const res = await fetch("/api/locations");
         if (res.ok) {
-          const data: any = await res.json();
+          const data = (await res.json()) as { locations: UserLocation[] };
           setUserLocations(data.locations || []);
         }
       } catch (e) {
