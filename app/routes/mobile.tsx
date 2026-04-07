@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLoaderData, Link } from "react-router";
 import Map from "~/components/Map";
 import { getAllCases } from "~/lib/db.server";
@@ -22,6 +22,11 @@ export default function MobileView() {
   const [sessionId, setSessionId] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [userLocations, setUserLocations] = useState<UserLocation[]>([]);
+
+  const latestRefs = useRef({ userName: "", passcode: "" });
+  useEffect(() => {
+    latestRefs.current = { userName, passcode };
+  }, [userName, passcode]);
 
   useEffect(() => {
     const storedSharing = localStorage.getItem("mbt_isSharing") === "true";
@@ -50,11 +55,14 @@ export default function MobileView() {
       if (lat) lastLat = lat;
       if (lng) lastLng = lng;
 
-      if (isSharing && passcode && userName && lastLat !== undefined && lastLng !== undefined) {
+      const currentUserName = latestRefs.current.userName;
+      const currentPasscode = latestRefs.current.passcode;
+
+      if (isSharing && currentPasscode && currentUserName && lastLat !== undefined && lastLng !== undefined) {
         const formData = new FormData();
-        formData.append("passcode", passcode);
+        formData.append("passcode", currentPasscode);
         formData.append("sessionId", sessionId);
-        formData.append("userName", userName);
+        formData.append("userName", currentUserName);
         formData.append("latitude", String(lastLat));
         formData.append("longitude", String(lastLng));
 
@@ -107,7 +115,7 @@ export default function MobileView() {
     return () => {
       clearInterval(interval);
     };
-  }, [sessionId, isSharing, passcode, userName]);
+  }, [sessionId, isSharing]);
 
   const handleToggleShare = async (checked: boolean) => {
     if (checked) {
