@@ -73,7 +73,9 @@ export default function MobileView() {
             setIsSharing(false);
             localStorage.setItem("mbt_isSharing", "false");
           }
-        } catch (e) { }
+        } catch (e) {
+          console.error("Failed to post location:", e);
+        }
       }
 
       try {
@@ -82,7 +84,9 @@ export default function MobileView() {
           const data: any = await res.json();
           setUserLocations(data.locations || []);
         }
-      } catch (e) { }
+      } catch (e) {
+        console.error("Failed to fetch locations:", e);
+      }
     };
 
     const syncLocation = () => {
@@ -97,7 +101,9 @@ export default function MobileView() {
               localStorage.setItem("mbt_isSharing", "false");
               const formData = new FormData();
               formData.append("sessionId", sessionId);
-              fetch("/api/locations", { method: "DELETE", body: formData }).catch(() => { });
+              fetch("/api/locations", { method: "DELETE", body: formData }).catch((e) => {
+                console.error("Failed to clear location after permission denied:", e);
+              });
             } else {
               performSync();
             }
@@ -126,7 +132,9 @@ export default function MobileView() {
       if (sessionId) {
         const formData = new FormData();
         formData.append("sessionId", sessionId);
-        await fetch("/api/locations", { method: "DELETE", body: formData });
+        await fetch("/api/locations", { method: "DELETE", body: formData }).catch((e) => {
+          console.error("Failed to delete location on toggle off:", e);
+        });
       }
     }
   };
