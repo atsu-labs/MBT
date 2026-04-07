@@ -1,4 +1,4 @@
-import type { Case, NewCase, UpdateCase } from "./types";
+import type { Case, NewCase, UpdateCase, UserLocation } from "./types";
 
 // Cloudflare D1データベースの型定義
 export interface Env {
@@ -184,4 +184,56 @@ export async function deleteCase(db: D1Database, id: number): Promise<boolean> {
     .run();
 
   return result.success;
+}
+
+/**
+ * ユーザーの位置情報を更新または追加します。
+ */
+export async function upsertLocation(
+  db: D1Database,
+  sessionId: string,
+  userName: string,
+  latitude: number,
+  longitude: number
+): Promise<UserLocation> {
+  const result = await db
+    .prepare(
+      `INSERT INTO user_locations (session_id, user_name, latitude, longitude, updated_at)
+       VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
+       ON CONFLICT(session_id) DO UPDATE SET
+         user_name = excluded.user_name,
+         latitude = excluded.latitude,
+         longitude = excluded.longitude,
+         updated_at = CURRENT_TIMESTAMP
+       RETURNING *`
+    )
+    .bind(sessionId, userName, latitude, longitude)
+    .first<UserLocation>();
+
+  if (!result) {
+    throw new Error("Failed to upsert location");
+  }
+
+  return result;
+}
+
+/**
+ * ユーザーの位置情報を削除します（共有オフ時用）。
+ */
+export async function deleteLocation(db: D1Database, sessionId: string): Promise<boolean> {
+  const result = await db
+    .prepare("DELETE FROM user_locations WHERE session_id = ?")
+    .bind(sessionId)
+    .run();
+  return result.success;
+}
+
+/**
+ * アクティブなユーザーの位置情報（過去10分以内）を取得します。
+ */
+export async function getActiveLocations(db: D1Database): Promise<UserLocation[]> {
+  const result = await db
+    .prepare("SELECT * FROM user_locations WHERE updated_at >= datetime('now', '-10 minutes')")
+    .all<UserLocation>();
+  return result.results || [];
 }

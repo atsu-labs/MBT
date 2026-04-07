@@ -14,4 +14,7 @@ export default [
   
   // モバイル閲覧画面
   route("mobile", "routes/mobile.tsx"),
+
+  // APIルート
+  route("api/locations", "routes/api.locations.ts"),
 ] satisfies RouteConfig;
