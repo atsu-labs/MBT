@@ -4,8 +4,8 @@ export default function AdminLayout() {
   const location = useLocation();
 
   return (
-    <div>
-      <header className="header">
+    <div className="admin-layout">
+      <header className="header admin-header">
         <div className="header-content">
           <h1>管理画面</h1>
           <nav className="nav">
@@ -25,7 +25,7 @@ export default function AdminLayout() {
           </nav>
         </div>
       </header>
-      <main>
+      <main className="admin-main">
         <Outlet />
       </main>
     </div>
