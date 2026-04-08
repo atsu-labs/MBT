@@ -196,6 +196,22 @@ export default function MobileView() {
 
   return (
     <div className="mobile-root">
+      {/* ヘッダー */}
+      <header className="mobile-header">
+        <span className="mobile-header-title">MBT</span>
+        <label className="mobile-header-share">
+          <span className="mobile-header-share-label">位置共有</span>
+          <span className="mobile-toggle" aria-label="位置共有トグル">
+            <input
+              type="checkbox"
+              checked={isSharing}
+              onChange={(e) => handleToggleShare(e.target.checked)}
+            />
+            <span className="mobile-toggle-slider" />
+          </span>
+        </label>
+      </header>
+
       {/* 地図（全画面） */}
       <div className="mobile-map-area">
         <Map
@@ -224,22 +240,6 @@ export default function MobileView() {
           </button>
         </div>
 
-        {/* 位置共有トグル（右上） */}
-        <div className="mobile-share-fab">
-          <label className="mobile-share-label" title="位置共有">
-            <span className="material-icons" style={{ color: isSharing ? "#27ae60" : "#95a5a6" }}>
-              share_location
-            </span>
-            <input
-              type="checkbox"
-              checked={isSharing}
-              onChange={(e) => handleToggleShare(e.target.checked)}
-              style={{ position: "absolute", opacity: 0, width: 0, height: 0 }}
-            />
-          </label>
-        </div>
-
-        {/* 位置情報エラー表示 */}
         {geoError && (
           <div className="mobile-geo-error">
             <span>{geoError}</span>

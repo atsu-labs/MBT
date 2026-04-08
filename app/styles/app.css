@@ -377,6 +377,84 @@ body {
   position: relative;
 }
 
+/* ヘッダー（最小高さ） */
+.mobile-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+  height: 44px;
+  background: #2c3e50;
+  color: white;
+  flex-shrink: 0;
+  z-index: 1100;
+  padding-top: env(safe-area-inset-top);
+}
+
+.mobile-header-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.mobile-header-share {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.mobile-header-share-label {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.85);
+  user-select: none;
+}
+
+/* トグルスイッチ */
+.mobile-toggle {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.mobile-toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+}
+
+.mobile-toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background: #7f8c8d;
+  border-radius: 24px;
+  transition: background-color 0.25s;
+}
+
+.mobile-toggle-slider::before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.25s;
+}
+
+.mobile-toggle input:checked + .mobile-toggle-slider {
+  background: #27ae60;
+}
+
+.mobile-toggle input:checked + .mobile-toggle-slider::before {
+  transform: translateX(20px);
+}
+
 /* 地図エリア（下部ナビ分を除いた全高） */
 .mobile-map-area {
   flex: 1;
@@ -421,32 +499,12 @@ body {
   background-color: #f0f0f0;
 }
 
-/* 位置共有FAB（右上） */
-.mobile-share-fab {
-  position: absolute;
-  right: 12px;
-  top: 12px;
-  z-index: 1000;
-}
-
-.mobile-share-label {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: white;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
 /* 位置情報エラートースト */
 .mobile-geo-error {
   position: absolute;
   top: 12px;
   left: 12px;
-  right: 68px;
+  right: 12px;
   z-index: 1001;
   background: #e74c3c;
   color: white;
