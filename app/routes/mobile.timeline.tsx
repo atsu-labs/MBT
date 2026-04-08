@@ -1,42 +1,25 @@
 import { useEffect, useRef } from "react";
 import { Link } from "react-router";
-import type { LinksFunction } from "react-router";
+import "vis-timeline/styles/vis-timeline-graph2d.min.css";
 import timelineData from "~/data/timeline.json";
 
-// vis-timeline の CSS を CDN から読み込む
-export const links: LinksFunction = () => [
-  {
-    rel: "stylesheet",
-    href: "https://unpkg.com/vis-timeline@8.5.0/styles/vis-timeline-graph2d.min.css",
-  },
-];
-
-// vis-timeline の型定義（CDN 経由で window.vis に注入される）
-declare global {
-  interface Window {
-    vis: {
-      Timeline: new (
-        container: HTMLElement,
-        items: object[],
-        groups: object[],
-        options: object
-      ) => { destroy: () => void };
-    };
-  }
-}
-
-const VIS_TIMELINE_CDN =
-  "https://unpkg.com/vis-timeline@8.5.0/standalone/umd/vis-timeline-graph2d.min.js";
+// タイムラインの表示日付をデータの最初のアイテムから導出する
+const timelineDate = new Date(timelineData.items[0].start);
+const displayDate = timelineDate.toLocaleDateString("ja-JP", {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+});
 
 export default function MobileTimeline() {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     let timelineInstance: { destroy: () => void } | null = null;
-    let script: HTMLScriptElement | null = null;
 
-    const initTimeline = () => {
-      if (!containerRef.current || !window.vis) return;
+    // vis-timeline はブラウザ API に依存するため、クライアント側で動的にインポートする
+    import("vis-timeline").then(({ Timeline }) => {
+      if (!containerRef.current) return;
 
       // アイテムに id・title・表示用コンテンツを付与（オリジナルと同じ加工）
       const items = timelineData.items.map((item, index) => {
@@ -56,9 +39,11 @@ export default function MobileTimeline() {
         };
       });
 
+      // タイムライン軸の範囲をデータの日付から算出する
+      const axisDate = timelineDate.toISOString().slice(0, 10);
       const options = {
-        start: new Date("2026-06-28T09:00:00"),
-        end: new Date("2026-06-28T15:00:00"),
+        start: new Date(`${axisDate}T09:00:00`),
+        end: new Date(`${axisDate}T15:00:00`),
         zoomable: true,
         orientation: "top",
         tooltip: { delay: 50 },
@@ -68,30 +53,16 @@ export default function MobileTimeline() {
         margin: { item: 2, axis: 20 },
       };
 
-      timelineInstance = new window.vis.Timeline(
+      timelineInstance = new Timeline(
         containerRef.current,
         items,
         timelineData.groups,
         options
       );
-    };
-
-    if (window.vis) {
-      // 既にロード済みの場合はそのまま初期化
-      initTimeline();
-    } else {
-      // vis-timeline スクリプトを動的に読み込む
-      script = document.createElement("script");
-      script.src = VIS_TIMELINE_CDN;
-      script.onload = initTimeline;
-      document.head.appendChild(script);
-    }
+    });
 
     return () => {
       timelineInstance?.destroy();
-      if (script && document.head.contains(script)) {
-        document.head.removeChild(script);
-      }
     };
   }, []);
 
@@ -131,7 +102,7 @@ export default function MobileTimeline() {
       {/* タイムライン本体 */}
       <main style={{ flex: 1, padding: "0.5rem", overflowX: "auto" }}>
         <p style={{ fontSize: "0.75rem", color: "#666", margin: "0 0 0.5rem 0", textAlign: "center" }}>
-          2026年6月28日
+          {displayDate}
         </p>
         {/* area カラースタイル */}
         <style>{`
