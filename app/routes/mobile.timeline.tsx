@@ -4,17 +4,21 @@ import "vis-timeline/styles/vis-timeline-graph2d.min.css";
 import timelineData from "~/data/timeline.json";
 
 // タイムラインの表示日付をデータの最初のアイテムから導出する
-const timelineDate = new Date(timelineData.items[0].start);
-const displayDate = timelineDate.toLocaleDateString("ja-JP", {
-  year: "numeric",
-  month: "long",
-  day: "numeric",
-});
+const firstItem = timelineData.items[0];
+const displayDate = firstItem
+  ? new Date(firstItem.start).toLocaleDateString("ja-JP", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    })
+  : "";
 
 export default function MobileTimeline() {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (timelineData.items.length === 0) return;
+
     let timelineInstance: { destroy: () => void } | null = null;
 
     // vis-timeline はブラウザ API に依存するため、クライアント側で動的にインポートする
@@ -23,24 +27,24 @@ export default function MobileTimeline() {
 
       // アイテムに id・title・表示用コンテンツを付与（オリジナルと同じ加工）
       const items = timelineData.items.map((item, index) => {
-        const s = new Date(item.start);
-        const e = new Date(item.end);
-        const sh = s.getHours().toString().padStart(2, "0");
-        const sm = s.getMinutes().toString().padStart(2, "0");
-        const eh = e.getHours().toString().padStart(2, "0");
-        const em = e.getMinutes().toString().padStart(2, "0");
+        const startDate = new Date(item.start);
+        const endDate = new Date(item.end);
+        const startHours = startDate.getHours().toString().padStart(2, "0");
+        const startMinutes = startDate.getMinutes().toString().padStart(2, "0");
+        const endHours = endDate.getHours().toString().padStart(2, "0");
+        const endMinutes = endDate.getMinutes().toString().padStart(2, "0");
         return {
           ...item,
           id: index + 1,
-          start: s,
-          end: e,
-          title: `${sh}:${sm} ～ ${eh}:${em}`,
-          content: `${item.content} ${sh}:${sm}-${eh}:${em}`,
+          start: startDate,
+          end: endDate,
+          title: `${startHours}:${startMinutes} ～ ${endHours}:${endMinutes}`,
+          content: `${item.content} ${startHours}:${startMinutes}-${endHours}:${endMinutes}`,
         };
       });
 
       // タイムライン軸の範囲をデータの日付から算出する
-      const axisDate = timelineDate.toISOString().slice(0, 10);
+      const axisDate = new Date(firstItem.start).toISOString().slice(0, 10);
       const options = {
         start: new Date(`${axisDate}T09:00:00`),
         end: new Date(`${axisDate}T15:00:00`),
