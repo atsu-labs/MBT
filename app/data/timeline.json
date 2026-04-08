@@ -1,0 +1,279 @@
+{
+  "groups": [
+    { "id": "1",  "content": "MBT1"  },
+    { "id": "2",  "content": "MBT2"  },
+    { "id": "3",  "content": "MBT3"  },
+    { "id": "4",  "content": "MBT4"  },
+    { "id": "5",  "content": "MBT5"  },
+    { "id": "6",  "content": "MBT6"  },
+    { "id": "7",  "content": "MBT7"  },
+    { "id": "8",  "content": "MBT8"  },
+    { "id": "9",  "content": "MBT9"  },
+    { "id": "10", "content": "MBT10" },
+    { "id": "11", "content": "MBT11" },
+    { "id": "12", "content": "MBT12" },
+    { "id": "13", "content": "MBT13" },
+    { "id": "14", "content": "MBT14" },
+    { "id": "15", "content": "MBT15" },
+    { "id": "16", "content": "MBT16" },
+    { "id": "17", "content": "MBT17" }
+  ],
+  "items": [
+    {
+      "group": "1",
+      "content": "area1-2",
+      "className": "area1",
+      "style": "font-size:10pt;",
+      "start": "2026-06-28T09:14:00",
+      "end":   "2026-06-28T10:01:00"
+    },
+    {
+      "group": "1",
+      "content": "area2",
+      "className": "area2",
+      "style": "font-size:10pt;",
+      "start": "2026-06-28T10:06:00",
+      "end":   "2026-06-28T11:55:00"
+    },
+    {
+      "group": "1",
+      "content": "area8 12:10~13:13",
+      "className": "area8",
+      "style": "font-size:10pt;",
+      "start": "2026-06-28T12:10:00",
+      "end":   "2026-06-28T13:13:00"
+    },
+    {
+      "group": "1",
+      "content": "area12",
+      "className": "area12",
+      "style": "font-size:10pt;",
+      "start": "2026-06-28T13:18:00",
+      "end":   "2026-06-28T14:58:00"
+    },
+    {
+      "group": "2",
+      "content": "area1-1",
+      "className": "area1",
+      "style": "font-size:10pt;",
+      "start": "2026-06-28T09:02:00",
+      "end":   "2026-06-28T09:38:00"
+    },
+    {
+      "group": "2",
+      "content": "area12",
+      "className": "area12",
+      "style": "font-size:10pt;",
+      "start": "2026-06-28T09:53:00",
+      "end":   "2026-06-28T14:58:00"
+    },
+    {
+      "group": "3",
+      "content": "area2",
+      "className": "area2",
+      "style": "font-size:10pt;",
+      "start": "2026-06-28T09:17:00",
+      "end":   "2026-06-28T11:55:00"
+    },
+    {
+      "group": "3",
+      "content": "area9",
+      "className": "area9",
+      "style": "font-size:10pt;",
+      "start": "2026-06-28T12:15:00",
+      "end":   "2026-06-28T14:47:00"
+    },
+    {
+      "group": "4",
+      "content": "area3",
+      "className": "area3",
+      "style": "font-size:10pt;",
+      "start": "2026-06-28T09:20:00",
+      "end":   "2026-06-28T11:38:00"
+    },
+    {
+      "group": "4",
+      "content": "area12",
+      "className": "area12",
+      "style": "font-size:10pt;",
+      "start": "2026-06-28T12:03:00",
+      "end":   "2026-06-28T14:58:00"
+    },
+    {
+      "group": "5",
+      "content": "area4",
+      "className": "area4",
+      "style": "font-size:10pt;",
+      "start": "2026-06-28T09:30:00",
+      "end":   "2026-06-28T11:38:00"
+    },
+    {
+      "group": "5",
+      "content": "area12",
+      "className": "area12",
+      "style": "font-size:10pt;",
+      "start": "2026-06-28T12:03:00",
+      "end":   "2026-06-28T14:58:00"
+    },
+    {
+      "group": "6",
+      "content": "area5",
+      "className": "area5",
+      "style": "font-size:10pt;",
+      "start": "2026-06-28T09:38:00",
+      "end":   "2026-06-28T11:16:00"
+    },
+    {
+      "group": "6",
+      "content": "area6",
+      "className": "area6",
+      "style": "font-size:10pt;",
+      "start": "2026-06-28T11:51:00",
+      "end":   "2026-06-28T13:03:00"
+    },
+    {
+      "group": "7",
+      "content": "area6",
+      "className": "area6",
+      "style": "font-size:10pt;",
+      "start": "2026-06-28T09:34:00",
+      "end":   "2026-06-28T13:03:00"
+    },
+    {
+      "group": "7",
+      "content": "area10",
+      "className": "area10",
+      "style": "font-size:10pt;",
+      "start": "2026-06-28T13:18:00",
+      "end":   "2026-06-28T14:35:00"
+    },
+    {
+      "group": "8",
+      "content": "area7",
+      "className": "area7",
+      "style": "font-size:10pt;",
+      "start": "2026-06-28T09:40:00",
+      "end":   "2026-06-28T12:50:00"
+    },
+    {
+      "group": "8",
+      "content": "area11",
+      "className": "area11",
+      "style": "font-size:10pt;",
+      "start": "2026-06-28T13:00:00",
+      "end":   "2026-06-28T14:23:00"
+    },
+    {
+      "group": "9",
+      "content": "area7",
+      "className": "area7",
+      "style": "font-size:10pt;",
+      "start": "2026-06-28T09:40:00",
+      "end":   "2026-06-28T12:50:00"
+    },
+    {
+      "group": "9",
+      "content": "area11",
+      "className": "area11",
+      "style": "font-size:10pt;",
+      "start": "2026-06-28T13:00:00",
+      "end":   "2026-06-28T14:23:00"
+    },
+    {
+      "group": "10",
+      "content": "area8",
+      "className": "area8",
+      "style": "font-size:10pt;",
+      "start": "2026-06-28T09:54:00",
+      "end":   "2026-06-28T13:13:00"
+    },
+    {
+      "group": "10",
+      "content": "area9",
+      "className": "area9",
+      "style": "font-size:10pt;",
+      "start": "2026-06-28T13:18:00",
+      "end":   "2026-06-28T14:47:00"
+    },
+    {
+      "group": "11",
+      "content": "area8",
+      "className": "area8",
+      "style": "font-size:10pt;",
+      "start": "2026-06-28T09:54:00",
+      "end":   "2026-06-28T13:13:00"
+    },
+    {
+      "group": "11",
+      "content": "area10",
+      "className": "area10",
+      "style": "font-size:10pt;",
+      "start": "2026-06-28T13:23:00",
+      "end":   "2026-06-28T14:35:00"
+    },
+    {
+      "group": "12",
+      "content": "area9",
+      "className": "area9",
+      "style": "font-size:10pt;",
+      "start": "2026-06-28T10:36:00",
+      "end":   "2026-06-28T14:47:00"
+    },
+    {
+      "group": "13",
+      "content": "area10",
+      "className": "area10",
+      "style": "font-size:10pt;",
+      "start": "2026-06-28T10:41:00",
+      "end":   "2026-06-28T14:35:00"
+    },
+    {
+      "group": "14",
+      "content": "area10",
+      "className": "area10",
+      "style": "font-size:10pt;",
+      "start": "2026-06-28T10:41:00",
+      "end":   "2026-06-28T14:35:00"
+    },
+    {
+      "group": "15",
+      "content": "area12",
+      "className": "area12",
+      "style": "font-size:10pt;",
+      "start": "2026-06-28T09:58:00",
+      "end":   "2026-06-28T14:58:00"
+    },
+    {
+      "group": "16",
+      "content": "area3,4,5",
+      "className": "area345",
+      "style": "font-size:10pt;",
+      "start": "2026-06-28T09:39:00",
+      "end":   "2026-06-28T11:38:00"
+    },
+    {
+      "group": "16",
+      "content": "area11",
+      "className": "area11",
+      "style": "font-size:10pt;",
+      "start": "2026-06-28T12:18:00",
+      "end":   "2026-06-28T14:23:00"
+    },
+    {
+      "group": "17",
+      "content": "area6,7",
+      "className": "area67",
+      "style": "font-size:10pt;",
+      "start": "2026-06-28T09:40:00",
+      "end":   "2026-06-28T10:26:00"
+    },
+    {
+      "group": "17",
+      "content": "area11",
+      "className": "area11",
+      "style": "font-size:10pt;",
+      "start": "2026-06-28T10:41:00",
+      "end":   "2026-06-28T14:23:00"
+    }
+  ]
+}

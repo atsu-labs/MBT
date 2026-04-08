@@ -14,6 +14,7 @@ export default [
   
   // モバイル閲覧画面
   route("mobile", "routes/mobile.tsx"),
+  route("mobile/timeline", "routes/mobile.timeline.tsx"),
 
   // APIルート
   route("api/locations", "routes/api.locations.ts"),
