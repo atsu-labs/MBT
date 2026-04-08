@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
-import { useLoaderData, Link } from "react-router";
+import { useLoaderData, Link, useRevalidator } from "react-router";
 import Map from "~/components/Map";
+import type { MapHandle } from "~/components/Map";
 import { getAllCases } from "~/lib/db.server";
 import "~/lib/context";
 import type { Route } from ".react-router/types/app/routes/+types/mobile";
@@ -13,8 +14,13 @@ export async function loader({ context }: Route.LoaderArgs) {
 
 export default function MobileView() {
   const { cases } = useLoaderData<typeof loader>();
+  const { revalidate } = useRevalidator();
+  const mapRef = useRef<MapHandle>(null);
+
   const [selectedCase, setSelectedCase] = useState<(typeof cases)[number] | null>(null);
   const [filterStatus, setFilterStatus] = useState<"all" | "open" | "closed">("all");
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [geoError, setGeoError] = useState<string | null>(null);
 
   const [isSharing, setIsSharing] = useState(false);
   const [userName, setUserName] = useState("");
@@ -47,7 +53,6 @@ export default function MobileView() {
 
   useEffect(() => {
     if (!sessionId) return;
-    let watchId: number;
     let lastLat: number | undefined;
     let lastLng: number | undefined;
 
@@ -148,198 +153,208 @@ export default function MobileView() {
     setShowModal(false);
   };
 
-  // フィルタリング
-  const filteredCases = cases.filter((c) => {
-    if (filterStatus === "all") return true;
-    return c.status === filterStatus;
-  });
+  // 現在地へ移動
+  const handleGoToCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      setGeoError("このブラウザは位置情報をサポートしていません。");
+      return;
+    }
+    setGeoError(null);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        mapRef.current?.flyTo(pos.coords.latitude, pos.coords.longitude, 15);
+      },
+      (err) => {
+        if (err.code === err.PERMISSION_DENIED) {
+          setGeoError("位置情報の取得が許可されていません。ブラウザの設定をご確認ください。");
+        } else {
+          setGeoError("現在地の取得に失敗しました。");
+        }
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  };
+
+  // 事案一覧タップ時の処理
+  const handleCaseSelect = (caseItem: (typeof cases)[number]) => {
+    setSelectedCase(caseItem);
+    setIsSheetOpen(false);
+    mapRef.current?.flyTo(caseItem.latitude, caseItem.longitude, 16);
+  };
+
+  // フィルタリング＋新しい順にソート
+  const filteredCases = cases
+    .filter((c) => {
+      if (filterStatus === "all") return true;
+      return c.status === filterStatus;
+    })
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
   return (
-    <div style={{ height: "100vh", display: "flex", flexDirection: "column" }}>
-      {/* モバイルヘッダー */}
-      <header
-        style={{
-          backgroundColor: "#2c3e50",
-          color: "white",
-          padding: "1rem",
-          boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-        }}
-      >
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <h1 style={{ fontSize: "1.25rem", fontWeight: "600" }}>事案閲覧</h1>
-          <div style={{ display: "flex", gap: "0.5rem" }}>
-            <Link
-              to="/mobile/timeline"
-              style={{
-                color: "white",
-                textDecoration: "none",
-                padding: "0.5rem 1rem",
-                borderRadius: "4px",
-                backgroundColor: "rgba(255, 255, 255, 0.1)",
-              }}
-            >
-              タイムライン
-            </Link>
-            <Link
-              to="/"
-              style={{
-                color: "white",
-                textDecoration: "none",
-                padding: "0.5rem 1rem",
-                borderRadius: "4px",
-                backgroundColor: "rgba(255, 255, 255, 0.1)",
-              }}
-            >
-              ホーム
-            </Link>
-          </div>
+    <div className="mobile-root">
+      {/* 地図（全画面） */}
+      <div className="mobile-map-area">
+        <Map
+          ref={mapRef}
+          cases={filteredCases}
+          selectedCaseId={selectedCase?.id}
+          userLocations={userLocations}
+          mySessionId={sessionId}
+        />
+
+        {/* ズームFAB */}
+        <div className="mobile-zoom-fab">
+          <button
+            className="mobile-fab-btn"
+            onClick={() => mapRef.current?.zoomIn()}
+            aria-label="ズームイン"
+          >
+            <span className="material-icons">add</span>
+          </button>
+          <button
+            className="mobile-fab-btn"
+            onClick={() => mapRef.current?.zoomOut()}
+            aria-label="ズームアウト"
+          >
+            <span className="material-icons">remove</span>
+          </button>
         </div>
-      </header>
 
-      {/* フィルターと位置共有トグル */}
-      <div
-        style={{
-          backgroundColor: "white",
-          padding: "0.75rem 1rem",
-          borderBottom: "1px solid #eee",
-          display: "flex",
-          gap: "1rem",
-          alignItems: "center"
-        }}
-      >
-        <select
-          value={filterStatus}
-          onChange={(e) => setFilterStatus(e.target.value as any)}
-          style={{
-            flex: 1,
-            padding: "0.5rem",
-            borderRadius: "4px",
-            border: "1px solid #ddd",
-            fontSize: "1rem",
-          }}
-        >
-          <option value="all">すべての事案</option>
-          <option value="open">対応中のみ</option>
-          <option value="closed">完了のみ</option>
-        </select>
-        <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.875rem", fontWeight: "bold" }}>
-          <span>位置共有</span>
-          <input
-            type="checkbox"
-            checked={isSharing}
-            onChange={(e) => handleToggleShare(e.target.checked)}
-            style={{ width: "1.25rem", height: "1.25rem" }}
-          />
-        </label>
-      </div>
-
-      {/* 地図 */}
-      <div style={{ flex: 1, position: "relative" }}>
-        <div style={{ position: "absolute", inset: 0 }}>
-          <Map
-            cases={filteredCases}
-            selectedCaseId={selectedCase?.id}
-            userLocations={userLocations}
-            mySessionId={sessionId}
-          />
+        {/* 位置共有トグル（右上） */}
+        <div className="mobile-share-fab">
+          <label className="mobile-share-label" title="位置共有">
+            <span className="material-icons" style={{ color: isSharing ? "#27ae60" : "#95a5a6" }}>
+              share_location
+            </span>
+            <input
+              type="checkbox"
+              checked={isSharing}
+              onChange={(e) => handleToggleShare(e.target.checked)}
+              style={{ position: "absolute", opacity: 0, width: 0, height: 0 }}
+            />
+          </label>
         </div>
-      </div>
 
-      {/* 事案リスト（スライドアップ可能） */}
-      <div
-        style={{
-          backgroundColor: "white",
-          maxHeight: "40vh",
-          overflowY: "auto",
-          borderTop: "2px solid #3498db",
-          boxShadow: "0 -2px 10px rgba(0, 0, 0, 0.1)",
-        }}
-      >
-        {filteredCases.length === 0 ? (
-          <div style={{ padding: "2rem", textAlign: "center", color: "#666" }}>
-            表示する事案がありません
-          </div>
-        ) : (
-          <div>
-            {filteredCases.map((caseItem) => (
-              <div
-                key={caseItem.id}
-                onClick={() => setSelectedCase(caseItem)}
-                style={{
-                  padding: "1rem",
-                  borderBottom: "1px solid #eee",
-                  cursor: "pointer",
-                  backgroundColor:
-                    selectedCase?.id === caseItem.id ? "#f0f8ff" : "white",
-                  transition: "background-color 0.2s",
-                }}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "start",
-                    marginBottom: "0.5rem",
-                  }}
-                >
-                  <h3
-                    style={{
-                      fontSize: "1rem",
-                      fontWeight: "600",
-                      color: "#2c3e50",
-                      margin: 0,
-                    }}
-                  >
-                    {caseItem.title}
-                  </h3>
-                  <div style={{ display: "flex", gap: "0.25rem", flexShrink: 0 }}>
-                    <span
-                      className={`badge badge-${caseItem.status}`}
-                      style={{ fontSize: "0.75rem" }}
-                    >
-                      {caseItem.status}
-                    </span>
-                    <span
-                      className={`badge badge-${caseItem.priority}`}
-                      style={{ fontSize: "0.75rem" }}
-                    >
-                      {caseItem.priority}
-                    </span>
-                  </div>
-                </div>
-                {caseItem.description && (
-                  <p
-                    style={{
-                      fontSize: "0.875rem",
-                      color: "#666",
-                      margin: "0 0 0.5rem 0",
-                      lineHeight: "1.4",
-                    }}
-                  >
-                    {caseItem.description.length > 80
-                      ? `${caseItem.description.slice(0, 80)}...`
-                      : caseItem.description}
-                  </p>
-                )}
-                <p style={{ fontSize: "0.75rem", color: "#999", margin: 0 }}>
-                  {new Date(caseItem.created_at).toLocaleString("ja-JP", {
-                    year: "numeric",
-                    month: "2-digit",
-                    day: "2-digit",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </p>
-              </div>
-            ))}
+        {/* 位置情報エラー表示 */}
+        {geoError && (
+          <div className="mobile-geo-error">
+            <span>{geoError}</span>
+            <button onClick={() => setGeoError(null)} aria-label="閉じる" style={{ background: "none", border: "none", cursor: "pointer", color: "inherit" }}>
+              <span className="material-icons" style={{ fontSize: "1rem" }}>close</span>
+            </button>
           </div>
         )}
       </div>
 
-      {/* モーダル */}
+      {/* 下部ナビ */}
+      <nav className="mobile-bottom-nav">
+        <button className="mobile-nav-btn" onClick={handleGoToCurrentLocation} aria-label="現在地">
+          <span className="material-icons">my_location</span>
+          <span className="mobile-nav-label">現在地</span>
+        </button>
+        <Link to="/mobile/timeline" className="mobile-nav-btn" aria-label="タイムライン">
+          <span className="material-icons">timeline</span>
+          <span className="mobile-nav-label">タイムライン</span>
+        </Link>
+        <button className="mobile-nav-btn" onClick={() => revalidate()} aria-label="更新">
+          <span className="material-icons">refresh</span>
+          <span className="mobile-nav-label">更新</span>
+        </button>
+        <button className="mobile-nav-btn" onClick={() => setIsSheetOpen(true)} aria-label="事案一覧">
+          <span className="material-icons">list</span>
+          <span className="mobile-nav-label">事案一覧</span>
+        </button>
+        <Link to="/mobile/help" className="mobile-nav-btn" aria-label="使い方">
+          <span className="material-icons">help_outline</span>
+          <span className="mobile-nav-label">使い方</span>
+        </Link>
+      </nav>
+
+      {/* ボトムシート（事案一覧） */}
+      {isSheetOpen && (
+        <>
+          {/* オーバーレイ */}
+          <div className="mobile-sheet-overlay" onClick={() => setIsSheetOpen(false)} />
+          {/* シート本体 */}
+          <div className="mobile-bottom-sheet">
+            {/* シートヘッダー */}
+            <div className="mobile-sheet-header">
+              <div className="mobile-sheet-drag-handle" />
+              <div className="mobile-sheet-header-row">
+                <h2 className="mobile-sheet-title">
+                  事案一覧（{filteredCases.length}件）
+                </h2>
+                <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+                  <select
+                    value={filterStatus}
+                    onChange={(e) => setFilterStatus(e.target.value as "all" | "open" | "closed")}
+                    className="mobile-sheet-filter"
+                    aria-label="フィルタ"
+                  >
+                    <option value="all">すべて</option>
+                    <option value="open">対応中</option>
+                    <option value="closed">完了</option>
+                  </select>
+                  <button className="mobile-sheet-close-btn" onClick={() => setIsSheetOpen(false)} aria-label="閉じる">
+                    <span className="material-icons">close</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* 事案リスト */}
+            <div className="mobile-sheet-list">
+              {filteredCases.length === 0 ? (
+                <div className="mobile-sheet-empty">表示する事案がありません</div>
+              ) : (
+                filteredCases.map((caseItem) => (
+                  <div
+                    key={caseItem.id}
+                    className={`mobile-case-item${selectedCase?.id === caseItem.id ? " mobile-case-item--selected" : ""}`}
+                    onClick={() => handleCaseSelect(caseItem)}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => e.key === "Enter" && handleCaseSelect(caseItem)}
+                  >
+                    <div className="mobile-case-item-header">
+                      <h3 className="mobile-case-title">{caseItem.title}</h3>
+                      <div style={{ display: "flex", gap: "0.25rem", flexShrink: 0 }}>
+                        <span className={`badge badge-${caseItem.status}`} style={{ fontSize: "0.75rem" }}>
+                          {caseItem.status}
+                        </span>
+                        <span className={`badge badge-${caseItem.priority}`} style={{ fontSize: "0.75rem" }}>
+                          {caseItem.priority}
+                        </span>
+                      </div>
+                    </div>
+                    {caseItem.description && (
+                      <p className="mobile-case-description">
+                        {caseItem.description.length > 80
+                          ? `${caseItem.description.slice(0, 80)}...`
+                          : caseItem.description}
+                      </p>
+                    )}
+                    <p className="mobile-case-time">
+                      {new Date(caseItem.created_at).toLocaleString("ja-JP", {
+                        year: "numeric",
+                        month: "2-digit",
+                        day: "2-digit",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </p>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* 位置共有モーダル */}
       {showModal && (
         <div style={{
-          position: "absolute", inset: 0, zIndex: 9999, backgroundColor: "rgba(0,0,0,0.5)",
+          position: "fixed", inset: 0, zIndex: 9999, backgroundColor: "rgba(0,0,0,0.5)",
           display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem"
         }}>
           <form onSubmit={handleModalSubmit} style={{
@@ -375,3 +390,4 @@ export default function MobileView() {
     </div>
   );
 }
+

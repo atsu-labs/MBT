@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, forwardRef, useImperativeHandle } from "react";
 import type { Case, UserLocation } from "../lib/types";
 import { firstAid, gate, aid, aed } from "../lib/markers/markers";
 import { course } from "../lib/markers/course";
@@ -11,6 +11,18 @@ type LeafletIcon = any;
 type LeafletLayerGroup = any;
 type LeafletGeoJSON = any;
 type LeafletType = any;
+
+/**
+ * 親コンポーネントから呼び出せる地図操作 API
+ */
+export interface MapHandle {
+  /** ズームイン */
+  zoomIn: () => void;
+  /** ズームアウト */
+  zoomOut: () => void;
+  /** 指定座標へ滑らかに移動 */
+  flyTo: (lat: number, lng: number, zoom?: number) => void;
+}
 
 /**
  * Mapコンポーネントのプロパティ
@@ -33,7 +45,7 @@ interface MapProps {
 }
 
 /**
- * Leaflet地図コンポーネント
+ * Leaflet地図コンポーネント（forwardRef 対応）
  * 
  * マラソンイベントの事案管理用の地図を表示します。
  * 以下の機能を提供：
@@ -42,30 +54,21 @@ interface MapProps {
  * - コースラインの表示
  * - レイヤーコントロール（表示/非表示の切り替え）
  * - 地図クリックイベント（新規事案作成時の位置選択）
+ * - 外部からの zoomIn / zoomOut / flyTo（MapHandle 経由）
  * 
  * @example
  * ```tsx
  * // 基本的な使用
  * <Map cases={cases} />
  * 
- * // 地図クリックイベント付き
- * <Map 
- *   cases={cases}
- *   onMapClick={(lat, lng) => {
- *     setPosition({ latitude: lat, longitude: lng });
- *   }}
- * />
- * 
- * // 特定の事案を選択
- * <Map 
- *   cases={cases}
- *   selectedCaseId={selectedId}
- *   center={[41.7869, 140.7369]}
- *   zoom={14}
- * />
+ * // forwardRef で外部操作
+ * const mapRef = useRef<MapHandle>(null);
+ * <Map ref={mapRef} cases={cases} />
+ * mapRef.current?.zoomIn();
+ * mapRef.current?.flyTo(41.78, 140.74, 15);
  * ```
  */
-export default function Map({
+const Map = forwardRef<MapHandle, MapProps>(function Map({
   cases = [],
   center = [41.786085560648345, 140.7452487945557], // デフォルトは函館
   zoom = 10,
@@ -73,7 +76,7 @@ export default function Map({
   selectedCaseId,
   userLocations = [],
   mySessionId = null,
-}: MapProps) {
+}: MapProps, ref) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<LeafletMap | null>(null);
   const hasFitBoundsRef = useRef(false);
@@ -88,6 +91,21 @@ export default function Map({
   useEffect(() => {
     onMapClickRef.current = onMapClick;
   }, [onMapClick]);
+
+  // 親コンポーネントへ公開する操作 API
+  useImperativeHandle(ref, () => ({
+    zoomIn: () => {
+      mapInstanceRef.current?.zoomIn();
+    },
+    zoomOut: () => {
+      mapInstanceRef.current?.zoomOut();
+    },
+    flyTo: (lat: number, lng: number, zoom?: number) => {
+      if (!mapInstanceRef.current) return;
+      const currentZoom = zoom ?? mapInstanceRef.current.getZoom();
+      mapInstanceRef.current.flyTo([lat, lng], currentZoom);
+    },
+  }), []);
 
   // Leafletの動的読み込み
   useEffect(() => {
@@ -109,9 +127,9 @@ export default function Map({
     const L = leafletRef.current;
     if (!L) return;
 
-    // 地図の作成
+    // 地図の作成（zoomControl: false でデフォルトズームUIを非表示にし、カスタムボタンと重複しないようにする）
     // center と zoom は初期表示時のみ使用する
-    const map = L.map(mapRef.current).setView(center, zoom);
+    const map = L.map(mapRef.current, { zoomControl: false }).setView(center, zoom);
 
     // タイルレイヤーの追加（OpenStreetMap）
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -353,4 +371,6 @@ export default function Map({
   }
 
   return <div ref={mapRef} className="map-container" />;
-}
+});
+
+export default Map;
