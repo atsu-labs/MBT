@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { Link } from "react-router";
-import "vis-timeline/styles/vis-timeline-graph2d.min.css";
+import "vis-timeline/styles/vis-timeline-graph2d.css";
 import timelineData from "~/data/timeline.json";
 
 // タイムラインの表示日付をデータの最初のアイテムから導出する

@@ -692,6 +692,7 @@ body {
   margin: 0;
 }
 
+@media (max-width: 768px) {
   .container {
     padding: 10px;
   }
@@ -869,11 +870,6 @@ body {
   .case-new-map-panel .map-container {
     height: 300px;
   }
-}
-
-  display: grid;
-  gap: 1rem;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
 }
 
 /* ローディング */
