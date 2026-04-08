@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import type { Case } from "../lib/types";
+import type { Case, UserLocation } from "../lib/types";
 import { firstAid, gate, aid, aed } from "../lib/markers/markers";
 import { course } from "../lib/markers/course";
 import createCaseIcon from "./CaseMarker";
@@ -26,6 +26,10 @@ interface MapProps {
   onMapClick?: (lat: number, lng: number) => void;
   /** 選択中の事案ID（選択中の事案は強調表示される） */
   selectedCaseId?: number;
+  /** 他ユーザーおよび自分の位置情報の配列 */
+  userLocations?: UserLocation[];
+  /** 自分のセッションID（自分のマーカーを区別するため） */
+  mySessionId?: string | null;
 }
 
 /**
@@ -67,13 +71,16 @@ export default function Map({
   zoom = 10,
   onMapClick,
   selectedCaseId,
+  userLocations = [],
+  mySessionId = null,
 }: MapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<LeafletMap | null>(null);
+  const hasFitBoundsRef = useRef(false);
   // Leafletモジュールへの参照
   const leafletRef = useRef<LeafletType | null>(null);
   // ES6 Mapを使用してマーカーを管理
-  const markersRef = useRef<globalThis.Map<number, LeafletMarker>>(new globalThis.Map<number, LeafletMarker>());
+  const markersRef = useRef<globalThis.Map<number | string, LeafletMarker>>(new globalThis.Map<number | string, LeafletMarker>());
   const [isLoaded, setIsLoaded] = useState(false);
 
   // コールバックを ref で保持（再レンダリングによる地図の再初期化を防ぐ）
@@ -300,15 +307,40 @@ export default function Map({
       }
     });
 
+    // ユーザーの位置情報マーカーを追加
+    userLocations.forEach((loc) => {
+      const isMe = mySessionId === loc.session_id;
+      const markerHtml = isMe
+        ? `<div style="background-color: #3b82f6; width: 16px; height: 16px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 5px rgba(0,0,0,0.5);"></div>`
+        : `<div style="background-color: #8b5cf6; width: 16px; height: 16px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 5px rgba(0,0,0,0.5);"></div>`;
+
+      const icon = L.divIcon({
+        className: "custom-marker-user",
+        html: markerHtml,
+        iconSize: [22, 22],
+        iconAnchor: [11, 11],
+      });
+
+      const tooltipContent = `<div style="font-weight:bold;">${isMe ? loc.user_name + " (あなた)" : loc.user_name}</div>`;
+
+      const marker = L.marker([loc.latitude, loc.longitude], { icon })
+        .addTo(map)
+        .bindTooltip(tooltipContent, { permanent: true, direction: "top", offset: [0, -10], className: "user-tooltip", opacity: 0.9 })
+        .bindPopup(`<b>${loc.user_name}</b><br>最終更新: ${new Date(loc.updated_at).toLocaleTimeString("ja-JP")}`);
+
+      markers.set(`user_${loc.session_id}`, marker);
+    });
+
     // マーカーが複数存在する場合、全てのマーカーが見えるように調整
     // 1つの場合は、クリックによる位置選択などの可能性があるため勝手に移動させない
-    if (cases.length > 1 && !selectedCaseId) {
+    if (cases.length > 1 && !selectedCaseId && !hasFitBoundsRef.current) {
       const bounds = L.latLngBounds(
         cases.map((c) => [c.latitude, c.longitude])
       );
       map.fitBounds(bounds, { padding: [50, 50] });
+      hasFitBoundsRef.current = true;
     }
-  }, [cases, isLoaded, selectedCaseId]);
+  }, [cases, isLoaded, selectedCaseId, userLocations, mySessionId]);
 
   if (!isLoaded) {
     return (

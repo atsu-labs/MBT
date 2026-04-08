@@ -81,7 +81,8 @@ MBT/
 │   │   ├── admin.cases.new.tsx       # 事案作成
 │   │   ├── admin.cases.$id.tsx       # 事案詳細
 │   │   ├── admin.cases.$id.edit.tsx  # 事案編集
-│   │   └── mobile.tsx                # モバイル閲覧画面
+│   │   ├── mobile.tsx                # モバイル閲覧画面（位置情報共有機能含む）
+│   │   └── api.locations.ts          # 位置情報共有 REST API
 │   ├── styles/                  # スタイルシート
 │   ├── root.tsx                 # ルートコンポーネント
 │   ├── entry.client.tsx         # クライアントエントリーポイント
@@ -90,7 +91,8 @@ MBT/
 ├── workers/                     # Cloudflare Workersエントリーポイント
 │   └── app.ts                   # Workers ESMエントリーポイント
 ├── migrations/                  # D1データベースマイグレーション
-│   └── 0001_initial_schema.sql
+│   ├── 0001_initial_schema.sql
+│   └── 0002_add_user_locations.sql
 ├── docs/                        # ドキュメント
 ├── wrangler.toml               # Cloudflare Workers設定
 ├── vite.config.ts              # Vite設定
@@ -159,6 +161,8 @@ interface MapProps {
   zoom?: number;                     // ズームレベル
   onMapClick?: (lat: number, lng: number) => void;  // 地図クリック時のコールバック
   selectedCaseId?: number;           // 選択中の事案ID
+  userLocations?: UserLocation[];    // 共有中のユーザー位置情報の配列
+  mySessionId?: string;              // 自身のセッションID（自分のマーカーを青色で表示）
 }
 ```
 
@@ -211,6 +215,22 @@ export default function Component() {
 **インデックス:**
 - `idx_cases_status`: ステータスでの検索最適化
 - `idx_cases_created_at`: 時系列でのソート最適化
+
+### user_locationsテーブル
+
+位置情報を共有中のユーザーのセッションを一時的に保存します。
+`migrations/0002_add_user_locations.sql` に定義されています。
+
+**カラム:**
+- `session_id`: 主キー（クライアント側で生成したUUID）
+- `user_name`: 地図上に表示するユーザー名（必須）
+- `latitude`: 緯度（必須）
+- `longitude`: 経度（必須）
+- `updated_at`: 最終更新日時
+
+**特記事項:**
+- `getActiveLocations` では `updated_at >= datetime('now', '-10 minutes')` でアクティブなレコードのみを取得
+- 位置共有オフ時にレコードを `DELETE` して除去することで、古いデータが残らないように設計
 
 ## マーカーデータ（GeoJSON）
 
@@ -278,6 +298,7 @@ export default function Component() {
 2. **型安全性**: TypeScriptで実装し、実行時エラーを最小化
 3. **サーバーサイドバリデーション**: `loader`/`action` で入力値を検証（タイトル必須、緯度経度NaN検証など）
 4. **環境変数**: 機密情報は環境変数で管理
+   - `LOCATION_SHARE_PASSCODE`: 位置情報共有APIのパスコード（本番環境では必ず設定すること）
 5. **HTTPS**: Cloudflare Workersは自動的にHTTPSを提供
 
 ## スケーラビリティ

@@ -25,6 +25,14 @@ interface Case {
   created_at: string;
   updated_at: string;
 }
+
+interface UserLocation {
+  session_id: string;   // クライアント生成のセッションID
+  user_name: string;    // 共有中のユーザー名
+  latitude: number;     // 緯度
+  longitude: number;    // 経度
+  updated_at: string;   // 最終更新日時
+}
 ```
 
 ### 関数一覧
@@ -195,6 +203,62 @@ export async function action({ params, context }: Route.ActionArgs) {
 }
 ```
 
+#### upsertLocation
+
+ユーザーの位置情報を登録または更新します（INSERT OR UPDATE）。
+
+```typescript
+async function upsertLocation(
+  db: D1Database,
+  sessionId: string,
+  userName: string,
+  latitude: number,
+  longitude: number
+): Promise<UserLocation>
+```
+
+**パラメータ:**
+- `db`: D1Database - Cloudflare D1データベースインスタンス
+- `sessionId`: string - クライアント側で生成したセッションID（PRIMARY KEY）
+- `userName`: string - 表示するユーザー名
+- `latitude`: number - 緯度
+- `longitude`: number - 経度
+
+**戻り値:**
+- `Promise<UserLocation>` - 保存された位置情報
+
+**エラー:**
+- 保存に失敗した場合は `Error("Failed to upsert location")` をスロー
+
+#### deleteLocation
+
+ユーザーの位置情報を削除します（共有オフ時に呼び出す）。
+
+```typescript
+async function deleteLocation(db: D1Database, sessionId: string): Promise<boolean>
+```
+
+**パラメータ:**
+- `db`: D1Database - Cloudflare D1データベースインスタンス
+- `sessionId`: string - 削除するセッションID
+
+**戻り値:**
+- `Promise<boolean>` - 削除が成功した場合はtrue、失敗した場合はfalse
+
+#### getActiveLocations
+
+過去10分以内に更新されたアクティブな位置情報をすべて取得します。
+
+```typescript
+async function getActiveLocations(db: D1Database): Promise<UserLocation[]>
+```
+
+**パラメータ:**
+- `db`: D1Database - Cloudflare D1データベースインスタンス
+
+**戻り値:**
+- `Promise<UserLocation[]>` - アクティブな位置情報の配列
+
 ## ルート構造
 
 ルートは `app/routes.ts` で明示的に定義されています（config-based routing）。
@@ -220,6 +284,32 @@ export async function action({ params, context }: Route.ActionArgs) {
 |---------|------|------|
 | `GET` | `/mobile` | `loader`: `getAllCases` → モバイル閲覧画面表示 |
 
+### 位置情報 API ルート
+
+`app/routes/api.locations.ts` で定義されています。
+
+| メソッド | パス | 処理 |
+|---------|------|------|
+| `GET` | `/api/locations` | `loader`: `getActiveLocations` → アクティブな位置情報一覧をJSONで返す |
+| `POST` | `/api/locations` | `action`: パスコード認証後に `upsertLocation` → 位置情報を登録・更新 |
+| `DELETE` | `/api/locations` | `action`: `deleteLocation` → 指定セッションの位置情報を削除 |
+
+#### POST /api/locations のリクエストパラメータ（FormData）
+
+| フィールド | 必須 | 説明 |
+|-----------|------|------|
+| `passcode` | ✅ | 環境変数 `LOCATION_SHARE_PASSCODE` と照合するパスコード |
+| `sessionId` | ✅ | クライアント側で生成したセッションID |
+| `userName` | ✅ | 地図上に表示するユーザー名 |
+| `latitude` | ✅ | 緯度（数値文字列） |
+| `longitude` | ✅ | 経度（数値文字列） |
+
+#### DELETE /api/locations のリクエストパラメータ（FormData）
+
+| フィールド | 必須 | 説明 |
+|-----------|------|------|
+| `sessionId` | ✅ | 削除するセッションID |
+
 ## データベーススキーマ
 
 ### cases テーブル
@@ -241,10 +331,25 @@ CREATE INDEX IF NOT EXISTS idx_cases_status ON cases(status);
 CREATE INDEX IF NOT EXISTS idx_cases_created_at ON cases(created_at);
 ```
 
-### インデックス
+### インデックス（casesテーブル）
 
 - `idx_cases_status` - ステータスでの検索を高速化
 - `idx_cases_created_at` - 作成日時でのソートを高速化
+
+### user_locations テーブル
+
+```sql
+CREATE TABLE IF NOT EXISTS user_locations (
+  session_id TEXT PRIMARY KEY,
+  user_name TEXT NOT NULL,
+  latitude REAL NOT NULL,
+  longitude REAL NOT NULL,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+位置情報の共有を有効にしているユーザーのセッションを保存します。
+`getActiveLocations` では `updated_at >= datetime('now', '-10 minutes')` の条件でアクティブなレコードのみを取得します。
 
 ## エラーハンドリング
 

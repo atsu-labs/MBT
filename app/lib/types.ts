@@ -75,3 +75,15 @@ export interface UpdateCase {
   /** 優先度 */
   priority?: CasePriority;
 }
+
+/**
+ * 利用者の位置情報
+ */
+export interface UserLocation {
+  session_id: string;
+  user_name: string;
+  latitude: number;
+  longitude: number;
+  updated_at: string;
+}
+

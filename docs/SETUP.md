@@ -54,6 +54,8 @@ database_id = "your-database-id-here"  # ← ここを更新
 npm run db:migrate:local
 ```
 
+これにより `cases` テーブルと `user_locations` テーブルが作成されます。
+
 ### 4. 開発サーバーの起動
 
 ```bash
@@ -88,6 +90,15 @@ npm run deploy
 
 > **注意**: `npm run deploy` は内部で `npm run build` を実行します。
 > `build` コマンドを事前に別途実行する必要はありません。
+
+### 3. 位置情報共有のパスコードを設定
+
+```bash
+npx wrangler secret put LOCATION_SHARE_PASSCODE
+```
+
+> `LOCATION_SHARE_PASSCODE` は、モバイル画面の「位置共有」機能を使用するために必要なパスコードです。
+> 設定しない場合はデフォルト値 `dummy` が使用されます。本番環境では必ず設定してください。
 
 ### 3. D1データベースの確認
 
