@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useLoaderData, Link, useRevalidator } from "react-router";
 import Map from "~/components/Map";
 import type { MapHandle } from "~/components/Map";
@@ -182,13 +182,17 @@ export default function MobileView() {
     mapRef.current?.flyTo(caseItem.latitude, caseItem.longitude, 16);
   };
 
-  // フィルタリング＋新しい順にソート
-  const filteredCases = cases
-    .filter((c) => {
-      if (filterStatus === "all") return true;
-      return c.status === filterStatus;
-    })
-    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+  // フィルタリング＋新しい順にソート（メモ化して不要な再計算を防ぐ）
+  const filteredCases = useMemo(
+    () =>
+      cases
+        .filter((c) => {
+          if (filterStatus === "all") return true;
+          return c.status === filterStatus;
+        })
+        .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()),
+    [cases, filterStatus]
+  );
 
   return (
     <div className="mobile-root">
