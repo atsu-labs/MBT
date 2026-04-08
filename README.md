@@ -21,6 +21,10 @@ Cloudflare Workers + D1データベース + React Router v7（SSRモード）を
   - 現場スタッフ向けの簡潔なUI
   - フィルター機能でステータス別に絞り込み
   - リスト表示と地図表示の切り替え
+  - 位置情報共有機能（パスコード認証付き）
+    - 自身の位置を青色マーカー、他者の位置を紫色マーカーで表示
+    - 1分間隔でのGPS取得によりバッテリー消費を最小化
+    - `localStorage` によりバックグラウンド復帰後も自動再開
 - 🗄️ **データ永続化**: Cloudflare D1（SQLiteベースのサーバーレスデータベース）
 - 🚀 **高速デプロイ**: Cloudflare Workersで世界中のエッジから配信
 
@@ -96,6 +100,9 @@ npm run dev
 2. 地図とリストが同時に表示される
 3. フィルターでステータス別に絞り込み
 4. リストから事案を選択して地図上のポップアップを確認
+5. 「位置共有」ボタンをタップし、パスコードを入力すると自分の位置情報が地図に表示される
+   - 自身の位置は青色マーカー、他者の位置は紫色マーカーで表示
+   - 再度「位置共有」ボタンをタップすると共有を停止
 
 ## デプロイ
 
@@ -113,6 +120,13 @@ npm run deploy
 
 > **注意**: `npm run deploy` は内部で `npm run build` を実行してからデプロイします。
 > 事前に `npm run build` を単独で実行する必要はありません。
+
+3. 位置情報共有のパスコードを環境変数に設定
+```bash
+npx wrangler secret put LOCATION_SHARE_PASSCODE
+```
+> `LOCATION_SHARE_PASSCODE` は、モバイル画面の「位置共有」機能を使用するために必要なパスコードです。
+> 設定しない場合はデフォルト値 `dummy` が使用されます（本番環境では必ず設定してください）。
 
 ## プロジェクト構成
 
@@ -137,7 +151,8 @@ MBT/
 │   │   ├── admin.cases.new.tsx        # 事案作成
 │   │   ├── admin.cases.$id.tsx        # 事案詳細
 │   │   ├── admin.cases.$id.edit.tsx   # 事案編集
-│   │   └── mobile.tsx                 # モバイル閲覧画面
+│   │   ├── mobile.tsx                 # モバイル閲覧画面（位置情報共有機能含む）
+│   │   └── api.locations.ts           # 位置情報共有 REST API
 │   ├── styles/             # スタイルシート
 │   ├── root.tsx            # ルートコンポーネント
 │   ├── entry.client.tsx    # クライアントエントリーポイント
@@ -151,7 +166,8 @@ MBT/
 ├── workers/            # Cloudflare Workersエントリーポイント
 │   └── app.ts         # Workers ESMエントリーポイント
 ├── migrations/             # D1データベースマイグレーション
-│   └── 0001_initial_schema.sql
+│   ├── 0001_initial_schema.sql
+│   └── 0002_add_user_locations.sql
 ├── wrangler.toml          # Cloudflare Workers設定
 ├── vite.config.ts         # Vite設定
 ├── tsconfig.json          # TypeScript設定
@@ -173,6 +189,16 @@ MBT/
 | priority | TEXT | 優先度 (high/medium/low) |
 | created_at | DATETIME | 作成日時 |
 | updated_at | DATETIME | 更新日時 |
+
+### user_locations テーブル
+
+| カラム名 | 型 | 説明 |
+|---------|-----|------|
+| session_id | TEXT | 主キー（クライアント生成のセッションID） |
+| user_name | TEXT | 共有中のユーザー名 |
+| latitude | REAL | 緯度 |
+| longitude | REAL | 経度 |
+| updated_at | TIMESTAMP | 最終更新日時 |
 
 ## 開発
 
