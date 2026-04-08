@@ -167,18 +167,32 @@ export default function MobileView() {
       >
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <h1 style={{ fontSize: "1.25rem", fontWeight: "600" }}>事案閲覧</h1>
-          <Link
-            to="/"
-            style={{
-              color: "white",
-              textDecoration: "none",
-              padding: "0.5rem 1rem",
-              borderRadius: "4px",
-              backgroundColor: "rgba(255, 255, 255, 0.1)",
-            }}
-          >
-            ホーム
-          </Link>
+          <div style={{ display: "flex", gap: "0.5rem" }}>
+            <Link
+              to="/mobile/timeline"
+              style={{
+                color: "white",
+                textDecoration: "none",
+                padding: "0.5rem 1rem",
+                borderRadius: "4px",
+                backgroundColor: "rgba(255, 255, 255, 0.1)",
+              }}
+            >
+              タイムライン
+            </Link>
+            <Link
+              to="/"
+              style={{
+                color: "white",
+                textDecoration: "none",
+                padding: "0.5rem 1rem",
+                borderRadius: "4px",
+                backgroundColor: "rgba(255, 255, 255, 0.1)",
+              }}
+            >
+              ホーム
+            </Link>
+          </div>
         </div>
       </header>
 

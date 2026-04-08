@@ -25,6 +25,11 @@ Cloudflare Workers + D1データベース + React Router v7（SSRモード）を
     - 自身の位置を青色マーカー、他者の位置を紫色マーカーで表示
     - 1分間隔でのGPS取得によりバッテリー消費を最小化
     - `localStorage` によりバックグラウンド復帰後も自動再開
+- ⏱️ **活動タイムライン**:
+  - MBT1〜MBT17 の全スタッフの活動エリア・時間帯を時系列で表示
+  - `/mobile/timeline` でモバイルからアクセス可能
+  - データは `app/data/timeline.json` で JSON 管理（年1回程度更新）
+  - vis-timeline ライブラリで滑らかなズーム・スクロールに対応
 - 🗄️ **データ永続化**: Cloudflare D1（SQLiteベースのサーバーレスデータベース）
 - 🚀 **高速デプロイ**: Cloudflare Workersで世界中のエッジから配信
 
@@ -33,6 +38,7 @@ Cloudflare Workers + D1データベース + React Router v7（SSRモード）を
 - **フレームワーク**: React Router v7 (SSR モード)
 - **UI**: React 19
 - **地図**: Leaflet（動的インポート、SSR対応）
+- **タイムライン**: vis-timeline（動的インポート、SSR対応）
 - **データストレージ**: Cloudflare D1（SQLiteベースのサーバーレスデータベース）
 - **ホスティング**: Cloudflare Workers
 - **開発言語**: TypeScript
@@ -104,6 +110,14 @@ npm run dev
    - 自身の位置は青色マーカー、他者の位置は紫色マーカーで表示
    - 再度「位置共有」ボタンをタップすると共有を停止
 
+### 活動タイムライン（モバイル）
+
+1. モバイル閲覧画面のヘッダーにある「タイムライン」をタップ
+2. MBT1〜MBT17 の全スタッフの活動エリアと時間帯がタイムライン形式で表示される
+3. ピンチ操作またはスクロールで時間軸を拡大縮小
+4. 各バーをタップするとツールチップで時間帯を確認できる
+5. 「← 戻る」ボタンで閲覧画面に戻る（位置共有の状態は保持される）
+
 ## デプロイ
 
 ### Cloudflare Workersへのデプロイ
@@ -136,6 +150,8 @@ MBT/
 │   ├── components/          # Reactコンポーネント
 │   │   ├── Map.tsx         # Leaflet地図コンポーネント（SSR対応）
 │   │   └── CaseMarker.tsx  # 事案マーカーアイコン生成
+│   ├── data/               # 静的データファイル
+│   │   └── timeline.json   # タイムラインデータ（グループ・アイテム）
 │   ├── lib/                # ユーティリティとビジネスロジック
 │   │   ├── types.ts        # TypeScript型定義
 │   │   ├── context.ts      # AppLoadContext型定義（Cloudflare Workers用）
@@ -152,6 +168,7 @@ MBT/
 │   │   ├── admin.cases.$id.tsx        # 事案詳細
 │   │   ├── admin.cases.$id.edit.tsx   # 事案編集
 │   │   ├── mobile.tsx                 # モバイル閲覧画面（位置情報共有機能含む）
+│   │   ├── mobile.timeline.tsx        # 活動タイムライン画面
 │   │   └── api.locations.ts           # 位置情報共有 REST API
 │   ├── styles/             # スタイルシート
 │   ├── root.tsx            # ルートコンポーネント
