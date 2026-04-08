@@ -283,6 +283,7 @@ async function getActiveLocations(db: D1Database): Promise<UserLocation[]>
 | メソッド | パス | 処理 |
 |---------|------|------|
 | `GET` | `/mobile` | `loader`: `getAllCases` → モバイル閲覧画面表示 |
+| `GET` | `/mobile/timeline` | loader なし → 活動タイムライン表示（データは `app/data/timeline.json` から取得） |
 
 ### 位置情報 API ルート
 
