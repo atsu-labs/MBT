@@ -86,6 +86,9 @@ const Map = forwardRef<MapHandle, MapProps>(function Map({
   const markersRef = useRef<globalThis.Map<number | string, LeafletMarker>>(new globalThis.Map<number | string, LeafletMarker>());
   const [isLoaded, setIsLoaded] = useState(false);
 
+  // 直前の selectedCaseId を保持（選択が実際に変わった時だけポップアップを開くために使用）
+  const prevSelectedCaseIdRef = useRef<number | undefined>(undefined);
+
   // コールバックを ref で保持（再レンダリングによる地図の再初期化を防ぐ）
   const onMapClickRef = useRef(onMapClick);
   useEffect(() => {
@@ -295,6 +298,10 @@ const Map = forwardRef<MapHandle, MapProps>(function Map({
     markers.forEach((marker) => marker.remove());
     markers.clear();
 
+    // selectedCaseId が今回のレンダリングで実際に変わったかどうかを判定
+    const didSelectionChange = selectedCaseId !== prevSelectedCaseIdRef.current;
+    prevSelectedCaseIdRef.current = selectedCaseId;
+
     // 新しいマーカーを追加
     cases.forEach((caseItem) => {
       const isSelected = selectedCaseId === caseItem.id;
@@ -314,13 +321,14 @@ const Map = forwardRef<MapHandle, MapProps>(function Map({
             </div>
           </div>
         `,
-          { maxWidth: 300 }
+          { maxWidth: 300, autoPan: false }
         );
 
       markers.set(caseItem.id, marker);
 
-      // 選択された事案の場合はポップアップを開く
-      if (isSelected) {
+      // 選択された事案で、かつ今回初めて選択された（selectedCaseId が変わった）場合のみポップアップを開く
+      // userLocations 更新などによる再レンダリング時にポップアップの autopan で地図が移動するのを防ぐ
+      if (isSelected && didSelectionChange) {
         marker.openPopup();
       }
     });
