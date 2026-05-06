@@ -149,6 +149,14 @@ npx wrangler secret put LOCATION_SHARE_PASSCODE
 > `LOCATION_SHARE_PASSCODE` は、モバイル画面の「位置共有」機能を使用するために必要なパスコードです。
 > 設定しない場合はデフォルト値 `dummy` が使用されます（本番環境では必ず設定してください）。
 
+4. サイト全体のBasic認証を環境変数に設定
+```bash
+npx wrangler secret put BASIC_AUTH_USERNAME
+npx wrangler secret put BASIC_AUTH_PASSWORD
+```
+> `BASIC_AUTH_USERNAME` と `BASIC_AUTH_PASSWORD` は、サイトへのアクセス時に使用するBasic認証情報です。
+> どちらか未設定の場合、サーバーは `500 Basic authentication is not configured.` を返します。
+
 ## プロジェクト構成
 
 ```
