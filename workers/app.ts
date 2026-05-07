@@ -37,23 +37,52 @@ function parseBasicAuth(header: string | null) {
   }
 }
 
+async function validateCredentials(
+  expectedUsername: string,
+  expectedPassword: string,
+  username: string,
+  password: string
+) {
+  const encoder = new TextEncoder();
+  const expectedDigest = new Uint8Array(
+    await crypto.subtle.digest(
+      "SHA-256",
+      encoder.encode(`${expectedUsername}:${expectedPassword}`)
+    )
+  );
+  const actualDigest = new Uint8Array(
+    await crypto.subtle.digest("SHA-256", encoder.encode(`${username}:${password}`))
+  );
+  const comparisonLength = Math.min(expectedDigest.length, actualDigest.length);
+  let diff = expectedDigest.length ^ actualDigest.length;
+
+  for (let i = 0; i < comparisonLength; i += 1) {
+    diff |= expectedDigest[i] ^ actualDigest[i];
+  }
+
+  return diff === 0;
+}
+
 export default {
   async fetch(request: Request, env: Env, _ctx: ExecutionContext) {
     const username = env.BASIC_AUTH_USERNAME;
     const password = env.BASIC_AUTH_PASSWORD;
 
     if (!username || !password) {
-      return new Response("Basic authentication is not configured.", {
-        status: 500,
-      });
+      console.error("Basic authentication credentials are not configured.");
+      return unauthorizedResponse();
     }
 
     const credentials = parseBasicAuth(request.headers.get("Authorization"));
 
     if (
       !credentials ||
-      credentials.username !== username ||
-      credentials.password !== password
+      !(await validateCredentials(
+        username,
+        password,
+        credentials.username,
+        credentials.password
+      ))
     ) {
       return unauthorizedResponse();
     }

@@ -155,7 +155,7 @@ npx wrangler secret put BASIC_AUTH_USERNAME
 npx wrangler secret put BASIC_AUTH_PASSWORD
 ```
 > `BASIC_AUTH_USERNAME` と `BASIC_AUTH_PASSWORD` は、サイトへのアクセス時に使用するBasic認証情報です。
-> どちらか未設定の場合、サーバーは `500 Basic authentication is not configured.` を返します。
+> どちらか未設定、または認証情報が不正な場合は `401 Unauthorized` を返します。
 
 ## プロジェクト構成
 
