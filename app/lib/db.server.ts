@@ -70,8 +70,8 @@ export async function getCaseById(db: D1Database, id: number): Promise<Case | nu
 export async function createCase(db: D1Database, newCase: NewCase): Promise<Case> {
   const result = await db
     .prepare(
-      `INSERT INTO cases (title, description, latitude, longitude, status, priority)
-       VALUES (?, ?, ?, ?, ?, ?)
+      `INSERT INTO cases (title, description, latitude, longitude, status, priority, assigned_team, result)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)
        RETURNING *`
     )
     .bind(
@@ -80,7 +80,9 @@ export async function createCase(db: D1Database, newCase: NewCase): Promise<Case
       newCase.latitude,
       newCase.longitude,
       newCase.status || "open",
-      newCase.priority || "medium"
+      newCase.priority || "medium",
+      newCase.assigned_team ?? null,
+      newCase.result ?? null
     )
     .first<Case>();
 
@@ -144,6 +146,14 @@ export async function updateCase(
   if (updates.priority !== undefined) {
     setClauses.push("priority = ?");
     values.push(updates.priority);
+  }
+  if (updates.assigned_team !== undefined) {
+    setClauses.push("assigned_team = ?");
+    values.push(updates.assigned_team ?? null);
+  }
+  if (updates.result !== undefined) {
+    setClauses.push("result = ?");
+    values.push(updates.result ?? null);
   }
 
   if (setClauses.length === 0) {

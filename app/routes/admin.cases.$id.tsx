@@ -70,6 +70,22 @@ export default function CaseDetail() {
         )}
 
         <div style={{ marginBottom: "1.5rem" }}>
+          <h3 style={{ fontSize: "1.1rem", marginBottom: "0.5rem" }}>担当チーム</h3>
+          <p style={{ color: "#666" }}>
+            {caseItem.assigned_team ?? "未定"}
+          </p>
+        </div>
+
+        {caseItem.result && (
+          <div style={{ marginBottom: "1.5rem" }}>
+            <h3 style={{ fontSize: "1.1rem", marginBottom: "0.5rem" }}>結果</h3>
+            <p style={{ color: "#666", lineHeight: "1.6", whiteSpace: "pre-wrap" }}>
+              {caseItem.result}
+            </p>
+          </div>
+        )}
+
+        <div style={{ marginBottom: "1.5rem" }}>
           <h3 style={{ fontSize: "1.1rem", marginBottom: "0.5rem" }}>位置情報</h3>
           <p style={{ color: "#666" }}>
             緯度: {caseItem.latitude.toFixed(6)}, 経度:{" "}
