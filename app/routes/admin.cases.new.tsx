@@ -30,7 +30,9 @@ export async function action({ request, context }: Route.ActionArgs) {
     status: (formData.get("status") as CaseStatus) || "open",
     priority: (formData.get("priority") as CasePriority) || "medium",
     assigned_team: (formData.get("assigned_team") as string) || null,
-    result: (formData.get("result") as string) || null,
+    assigned_team: (formData.get("assigned_team") as string) || null,
+    result: (formData.get("result") as string)?.trim() || null,
+  });
   });
   return redirect("/admin/cases");
 }
