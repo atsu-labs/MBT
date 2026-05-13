@@ -39,9 +39,7 @@ export async function action({ params, request, context }: Route.ActionArgs) {
     status: formData.get("status") as CaseStatus,
     priority: formData.get("priority") as CasePriority,
     assigned_team: (formData.get("assigned_team") as string) || null,
-    assigned_team: (formData.get("assigned_team") as string) || null,
     result: (formData.get("result") as string)?.trim() || null,
-  });
   });
   return redirect(`/admin/cases/${id}`);
 }
