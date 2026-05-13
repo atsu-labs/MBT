@@ -1,6 +1,7 @@
 import { useLoaderData, redirect, Link, Form } from "react-router";
 import Map from "~/components/Map";
 import { getCaseById, deleteCase } from "~/lib/db.server";
+import { getCasePriorityLabel, getCaseStatusBadgeClass, getCaseStatusLabel, getCaseTeamLabel } from "~/lib/case-display";
 import "~/lib/context";
 import type { Route } from ".react-router/types/app/routes/+types/admin.cases.$id";
 
@@ -37,12 +38,13 @@ export default function CaseDetail() {
               {caseItem.title}
             </h2>
             <div style={{ display: "flex", gap: "0.5rem" }}>
-              <span className={`badge badge-${caseItem.status}`}>
-                {caseItem.status}
+              <span className={`badge ${getCaseStatusBadgeClass(caseItem.status)}`}>
+                {getCaseStatusLabel(caseItem.status)}
               </span>
               <span className={`badge badge-${caseItem.priority}`}>
-                {caseItem.priority}
+                {getCasePriorityLabel(caseItem.priority)}
               </span>
+              <span className="badge">{getCaseTeamLabel(caseItem.assigned_team)}</span>
             </div>
           </div>
           <div style={{ display: "flex", gap: "0.5rem" }}>
@@ -72,7 +74,7 @@ export default function CaseDetail() {
         <div style={{ marginBottom: "1.5rem" }}>
           <h3 style={{ fontSize: "1.1rem", marginBottom: "0.5rem" }}>担当チーム</h3>
           <p style={{ color: "#666" }}>
-            {caseItem.assigned_team ?? "未定"}
+            {getCaseTeamLabel(caseItem.assigned_team)}
           </p>
         </div>
 

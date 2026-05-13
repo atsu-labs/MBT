@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useLoaderData, useFetcher, Link } from "react-router";
 import { getAllCases, deleteCase } from "~/lib/db.server";
+import { CASE_STATUS_OPTIONS, getCasePriorityLabel, getCaseStatusBadgeClass, getCaseStatusLabel, getCaseTeamLabel } from "~/lib/case-display";
 import "~/lib/context";
 import type { Route } from ".react-router/types/app/routes/+types/admin.cases._index";
 
@@ -22,8 +23,10 @@ export async function action({ request, context }: Route.ActionArgs) {
 export default function CasesList() {
   const { cases } = useLoaderData<typeof loader>();
   const fetcher = useFetcher();
-  const [filter, setFilter] = useState<"all" | "open" | "closed">("all");
+  const [filter, setFilter] = useState<"all" | (typeof CASE_STATUS_OPTIONS)[number]["value"]>("all");
   const [sortBy, setSortBy] = useState<"created" | "priority">("created");
+  const selectedFilterLabel =
+    CASE_STATUS_OPTIONS.find((status) => status.value === filter)?.label ?? "該当ステータス";
 
   const handleDelete = (id: number) => {
     if (!confirm("この事案を削除してもよろしいですか？")) {
@@ -61,16 +64,19 @@ export default function CasesList() {
         <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
           <div>
             <label style={{ marginRight: "0.5rem" }}>ステータス:</label>
-            <select
-              value={filter}
-              onChange={(e) => setFilter(e.target.value as any)}
-              style={{ padding: "0.5rem", borderRadius: "4px", border: "1px solid #ddd" }}
-            >
-              <option value="all">すべて</option>
-              <option value="open">対応中</option>
-              <option value="closed">完了</option>
-            </select>
-          </div>
+              <select
+                value={filter}
+                onChange={(e) => setFilter(e.target.value as "all" | (typeof CASE_STATUS_OPTIONS)[number]["value"])}
+                style={{ padding: "0.5rem", borderRadius: "4px", border: "1px solid #ddd" }}
+              >
+                <option value="all">すべて</option>
+                {CASE_STATUS_OPTIONS.map((status) => (
+                  <option key={status.value} value={status.value}>
+                    {status.label}
+                  </option>
+                ))}
+              </select>
+            </div>
           <div>
             <label style={{ marginRight: "0.5rem" }}>並び順:</label>
             <select
@@ -90,7 +96,7 @@ export default function CasesList() {
           <p style={{ textAlign: "center", color: "#666", padding: "2rem" }}>
             {filter === "all"
               ? "事案がまだ登録されていません。"
-              : `${filter === "open" ? "対応中" : "完了"}の事案がありません。`}
+              : `${selectedFilterLabel}の事案がありません。`}
           </p>
         </div>
       ) : (
@@ -106,15 +112,13 @@ export default function CasesList() {
                     >
                       {caseItem.title}
                     </Link>
-                    <span className={`badge badge-${caseItem.status}`}>
-                      {caseItem.status}
+                    <span className={`badge ${getCaseStatusBadgeClass(caseItem.status)}`}>
+                      {getCaseStatusLabel(caseItem.status)}
                     </span>
                     <span className={`badge badge-${caseItem.priority}`}>
-                      {caseItem.priority}
+                      {getCasePriorityLabel(caseItem.priority)}
                     </span>
-                    {caseItem.assigned_team && (
-                      <span className="badge">{caseItem.assigned_team}</span>
-                    )}
+                    <span className="badge">{getCaseTeamLabel(caseItem.assigned_team)}</span>
                   </div>
                   {caseItem.description && (
                     <p style={{ color: "#666", marginBottom: "0.5rem" }}>
