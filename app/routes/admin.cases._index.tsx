@@ -25,6 +25,8 @@ export default function CasesList() {
   const fetcher = useFetcher();
   const [filter, setFilter] = useState<"all" | (typeof CASE_STATUS_OPTIONS)[number]["value"]>("all");
   const [sortBy, setSortBy] = useState<"created" | "priority">("created");
+  const selectedFilterLabel =
+    CASE_STATUS_OPTIONS.find((status) => status.value === filter)?.label ?? "該当ステータス";
 
   const handleDelete = (id: number) => {
     if (!confirm("この事案を削除してもよろしいですか？")) {
@@ -94,7 +96,7 @@ export default function CasesList() {
           <p style={{ textAlign: "center", color: "#666", padding: "2rem" }}>
             {filter === "all"
               ? "事案がまだ登録されていません。"
-              : `${getCaseStatusLabel(filter)}の事案がありません。`}
+              : `${selectedFilterLabel}の事案がありません。`}
           </p>
         </div>
       ) : (

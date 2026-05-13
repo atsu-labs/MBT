@@ -13,6 +13,48 @@ type LeafletLayerGroup = any;
 type LeafletGeoJSON = any;
 type LeafletType = any;
 
+const createCasePopupContent = (caseItem: Case): HTMLDivElement => {
+  const container = document.createElement("div");
+  container.style.minWidth = "200px";
+
+  const title = document.createElement("h3");
+  title.style.margin = "0 0 0.5rem 0";
+  title.style.fontSize = "1rem";
+  title.textContent = caseItem.title;
+  container.appendChild(title);
+
+  if (caseItem.description) {
+    const description = document.createElement("p");
+    description.style.margin = "0 0 0.5rem 0";
+    description.style.fontSize = "0.9rem";
+    description.textContent = caseItem.description;
+    container.appendChild(description);
+  }
+
+  const badges = document.createElement("div");
+  badges.style.display = "flex";
+  badges.style.gap = "0.5rem";
+  badges.style.marginTop = "0.5rem";
+
+  const statusBadge = document.createElement("span");
+  statusBadge.className = `badge ${getCaseStatusBadgeClass(caseItem.status)}`;
+  statusBadge.textContent = getCaseStatusLabel(caseItem.status);
+  badges.appendChild(statusBadge);
+
+  const priorityBadge = document.createElement("span");
+  priorityBadge.className = `badge badge-${caseItem.priority}`;
+  priorityBadge.textContent = getCasePriorityLabel(caseItem.priority);
+  badges.appendChild(priorityBadge);
+
+  const teamBadge = document.createElement("span");
+  teamBadge.className = "badge";
+  teamBadge.textContent = getCaseTeamLabel(caseItem.assigned_team);
+  badges.appendChild(teamBadge);
+
+  container.appendChild(badges);
+  return container;
+};
+
 /**
  * 親コンポーネントから呼び出せる地図操作 API
  */
@@ -308,23 +350,11 @@ const Map = forwardRef<MapHandle, MapProps>(function Map({
       const isSelected = selectedCaseId === caseItem.id;
       const icon = createCaseIcon(caseItem, isSelected, L);
       if (!icon) return; // SSR や Leaflet 未ロード時はスキップ
+      const popupContent = createCasePopupContent(caseItem);
 
       const marker = L.marker([caseItem.latitude, caseItem.longitude], { icon })
         .addTo(map)
-        .bindPopup(
-          `
-          <div style="min-width: 200px;">
-            <h3 style="margin: 0 0 0.5rem 0; font-size: 1rem;">${caseItem.title}</h3>
-            ${caseItem.description ? `<p style="margin: 0 0 0.5rem 0; font-size: 0.9rem;">${caseItem.description}</p>` : ""}
-            <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
-              <span class="badge ${getCaseStatusBadgeClass(caseItem.status)}">${getCaseStatusLabel(caseItem.status)}</span>
-              <span class="badge badge-${caseItem.priority}">${getCasePriorityLabel(caseItem.priority)}</span>
-              <span class="badge">${getCaseTeamLabel(caseItem.assigned_team)}</span>
-            </div>
-          </div>
-        `,
-          { maxWidth: 300, autoPan: false }
-        );
+        .bindPopup(popupContent, { maxWidth: 300, autoPan: false });
 
       markers.set(caseItem.id, marker);
 

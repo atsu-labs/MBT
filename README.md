@@ -200,7 +200,10 @@ MBT/
 │   └── app.ts         # Workers ESMエントリーポイント
 ├── migrations/             # D1データベースマイグレーション
 │   ├── 0001_initial_schema.sql
-│   └── 0002_add_user_locations.sql
+│   ├── 0002_add_user_locations.sql
+│   ├── 0003_add_team_to_cases.sql
+│   ├── 0004_migrate_case_status_values.sql
+│   └── 0005_update_cases_status_default.sql
 ├── wrangler.toml          # Cloudflare Workers設定
 ├── vite.config.ts         # Vite設定
 ├── tsconfig.json          # TypeScript設定
