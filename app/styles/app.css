@@ -208,12 +208,22 @@ body {
   font-weight: 500;
 }
 
-.badge-open {
+.badge-pending {
+  background-color: #7f8c8d;
+  color: white;
+}
+
+.badge-en_route {
+  background-color: #8e44ad;
+  color: white;
+}
+
+.badge-in_progress {
   background-color: #3498db;
   color: white;
 }
 
-.badge-closed {
+.badge-completed {
   background-color: #95a5a6;
   color: white;
 }

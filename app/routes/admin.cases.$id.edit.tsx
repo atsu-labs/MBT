@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useLoaderData, redirect, Link, Form } from "react-router";
 import Map from "~/components/Map";
 import { getCaseById, updateCase } from "~/lib/db.server";
+import { CASE_STATUS_OPTIONS } from "~/lib/case-display";
 import "~/lib/context";
 import type { Case, CaseStatus, CasePriority } from "~/lib/types";
 import type { Route } from ".react-router/types/app/routes/+types/admin.cases.$id.edit";
@@ -150,8 +151,11 @@ export default function EditCase() {
                   })
                 }
               >
-                <option value="open">対応中</option>
-                <option value="closed">完了</option>
+                {CASE_STATUS_OPTIONS.map((status) => (
+                  <option key={status.value} value={status.value}>
+                    {status.label}
+                  </option>
+                ))}
               </select>
             </div>
 

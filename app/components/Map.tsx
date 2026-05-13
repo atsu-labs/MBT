@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, forwardRef, useImperativeHandle } from "react";
 import type { Case, UserLocation } from "../lib/types";
+import { getCasePriorityLabel, getCaseStatusBadgeClass, getCaseStatusLabel, getCaseTeamLabel } from "../lib/case-display";
 import { firstAid, gate, aid, aed } from "../lib/markers/markers";
 import { course } from "../lib/markers/course";
 import createCaseIcon from "./CaseMarker";
@@ -316,8 +317,9 @@ const Map = forwardRef<MapHandle, MapProps>(function Map({
             <h3 style="margin: 0 0 0.5rem 0; font-size: 1rem;">${caseItem.title}</h3>
             ${caseItem.description ? `<p style="margin: 0 0 0.5rem 0; font-size: 0.9rem;">${caseItem.description}</p>` : ""}
             <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
-              <span class="badge badge-${caseItem.status}">${caseItem.status}</span>
-              <span class="badge badge-${caseItem.priority}">${caseItem.priority}</span>
+              <span class="badge ${getCaseStatusBadgeClass(caseItem.status)}">${getCaseStatusLabel(caseItem.status)}</span>
+              <span class="badge badge-${caseItem.priority}">${getCasePriorityLabel(caseItem.priority)}</span>
+              <span class="badge">${getCaseTeamLabel(caseItem.assigned_team)}</span>
             </div>
           </div>
         `,

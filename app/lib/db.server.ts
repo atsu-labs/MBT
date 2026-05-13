@@ -61,7 +61,7 @@ export async function getCaseById(db: D1Database, id: number): Promise<Case | nu
  *   description: "第1関門付近で転倒者発生",
  *   latitude: 41.7869,
  *   longitude: 140.7369,
- *   status: "open",
+ *   status: "pending",
  *   priority: "high"
  * };
  * const created = await createCase(context.cloudflare.env.DB, newCase);
@@ -79,7 +79,7 @@ export async function createCase(db: D1Database, newCase: NewCase): Promise<Case
       newCase.description || null,
       newCase.latitude,
       newCase.longitude,
-      newCase.status || "open",
+      newCase.status || "pending",
       newCase.priority || "medium",
       newCase.assigned_team ?? null,
       newCase.result ?? null
@@ -105,13 +105,13 @@ export async function createCase(db: D1Database, newCase: NewCase): Promise<Case
  * @example
  * ```typescript
  * // ステータスのみ更新
- * const updated = await updateCase(db, 1, { status: "closed" });
+ * const updated = await updateCase(db, 1, { status: "completed" });
  * 
  * // 複数フィールドを更新
  * const updated = await updateCase(db, 1, {
  *   title: "更新されたタイトル",
  *   priority: "low",
- *   status: "closed"
+ *   status: "completed"
  * });
  * ```
  */

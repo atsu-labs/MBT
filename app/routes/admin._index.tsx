@@ -1,6 +1,7 @@
 import { useLoaderData, Link } from "react-router";
 import Map from "~/components/Map";
 import { getAllCases } from "~/lib/db.server";
+import { getCasePriorityLabel, getCaseStatusBadgeClass, getCaseStatusLabel, getCaseTeamLabel } from "~/lib/case-display";
 import "~/lib/context";
 import type { Route } from ".react-router/types/app/routes/+types/admin._index";
 
@@ -20,8 +21,8 @@ export default function AdminDashboard() {
 
   const stats = {
     total: cases.length,
-    open: cases.filter((c) => c.status === "open").length,
-    closed: cases.filter((c) => c.status === "closed").length,
+    inProgress: cases.filter((c) => c.status === "in_progress").length,
+    completed: cases.filter((c) => c.status === "completed").length,
     high: cases.filter((c) => c.priority === "high").length,
   };
 
@@ -42,7 +43,7 @@ export default function AdminDashboard() {
             対応中
           </h3>
           <p className="dashboard-stat-value dashboard-stat-value-open">
-            {stats.open}
+            {stats.inProgress}
           </p>
         </div>
         <div className="card dashboard-stat-card">
@@ -50,7 +51,7 @@ export default function AdminDashboard() {
             完了
           </h3>
           <p className="dashboard-stat-value dashboard-stat-value-closed">
-            {stats.closed}
+            {stats.completed}
           </p>
         </div>
         <div className="card dashboard-stat-card">
@@ -98,12 +99,13 @@ export default function AdminDashboard() {
                     <div className="case-item-header dashboard-case-item-header">
                       <span className="case-item-title dashboard-case-item-title">{caseItem.title}</span>
                       <div className="dashboard-case-badges">
-                        <span className={`badge badge-${caseItem.status}`}>
-                          {caseItem.status}
+                        <span className={`badge ${getCaseStatusBadgeClass(caseItem.status)}`}>
+                          {getCaseStatusLabel(caseItem.status)}
                         </span>
                         <span className={`badge badge-${caseItem.priority}`}>
-                          {caseItem.priority}
+                          {getCasePriorityLabel(caseItem.priority)}
                         </span>
+                        <span className="badge">{getCaseTeamLabel(caseItem.assigned_team)}</span>
                       </div>
                     </div>
                     {caseItem.description && (

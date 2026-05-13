@@ -3,6 +3,7 @@ import { useLoaderData, Link, useRevalidator } from "react-router";
 import Map from "~/components/Map";
 import type { MapHandle } from "~/components/Map";
 import { getAllCases } from "~/lib/db.server";
+import { CASE_STATUS_OPTIONS, getCasePriorityLabel, getCaseStatusBadgeClass, getCaseStatusLabel, getCaseTeamLabel } from "~/lib/case-display";
 import "~/lib/context";
 import type { Route } from ".react-router/types/app/routes/+types/mobile";
 import type { UserLocation } from "~/lib/types";
@@ -18,7 +19,7 @@ export default function MobileView() {
   const mapRef = useRef<MapHandle>(null);
 
   const [selectedCase, setSelectedCase] = useState<(typeof cases)[number] | null>(null);
-  const [filterStatus, setFilterStatus] = useState<"all" | "open" | "closed">("all");
+  const [filterStatus, setFilterStatus] = useState<"all" | (typeof CASE_STATUS_OPTIONS)[number]["value"]>("all");
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [geoError, setGeoError] = useState<string | null>(null);
 
@@ -289,16 +290,19 @@ export default function MobileView() {
                   事案一覧（{filteredCases.length}件）
                 </h2>
                 <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
-                  <select
-                    value={filterStatus}
-                    onChange={(e) => setFilterStatus(e.target.value as "all" | "open" | "closed")}
-                    className="mobile-sheet-filter"
-                    aria-label="フィルタ"
-                  >
-                    <option value="all">すべて</option>
-                    <option value="open">対応中</option>
-                    <option value="closed">完了</option>
-                  </select>
+                    <select
+                      value={filterStatus}
+                      onChange={(e) => setFilterStatus(e.target.value as "all" | (typeof CASE_STATUS_OPTIONS)[number]["value"])}
+                      className="mobile-sheet-filter"
+                      aria-label="フィルタ"
+                    >
+                      <option value="all">すべて</option>
+                      {CASE_STATUS_OPTIONS.map((status) => (
+                        <option key={status.value} value={status.value}>
+                          {status.label}
+                        </option>
+                      ))}
+                    </select>
                   <button className="mobile-sheet-close-btn" onClick={() => setIsSheetOpen(false)} aria-label="閉じる">
                     <span className="material-icons">close</span>
                   </button>
@@ -323,11 +327,14 @@ export default function MobileView() {
                     <div className="mobile-case-item-header">
                       <h3 className="mobile-case-title">{caseItem.title}</h3>
                       <div style={{ display: "flex", gap: "0.25rem", flexShrink: 0 }}>
-                        <span className={`badge badge-${caseItem.status}`} style={{ fontSize: "0.75rem" }}>
-                          {caseItem.status}
+                        <span className={`badge ${getCaseStatusBadgeClass(caseItem.status)}`} style={{ fontSize: "0.75rem" }}>
+                          {getCaseStatusLabel(caseItem.status)}
                         </span>
                         <span className={`badge badge-${caseItem.priority}`} style={{ fontSize: "0.75rem" }}>
-                          {caseItem.priority}
+                          {getCasePriorityLabel(caseItem.priority)}
+                        </span>
+                        <span className="badge" style={{ fontSize: "0.75rem" }}>
+                          {getCaseTeamLabel(caseItem.assigned_team)}
                         </span>
                       </div>
                     </div>
@@ -394,4 +401,3 @@ export default function MobileView() {
     </div>
   );
 }
-

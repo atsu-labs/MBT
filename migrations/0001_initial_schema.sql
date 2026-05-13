@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS cases (
   description TEXT,
   latitude REAL NOT NULL,
   longitude REAL NOT NULL,
-  status TEXT NOT NULL DEFAULT 'open',
+  status TEXT NOT NULL DEFAULT 'pending',
   priority TEXT NOT NULL DEFAULT 'medium',
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP

@@ -1,9 +1,11 @@
 /**
  * 事案のステータス
- * - open: 対応中
- * - closed: 対応完了
+ * - pending: 未対応
+ * - en_route: 移動中
+ * - in_progress: 対応中
+ * - completed: 完了
  */
-export type CaseStatus = "open" | "closed";
+export type CaseStatus = "pending" | "en_route" | "in_progress" | "completed";
 
 /**
  * 事案の優先度
@@ -28,7 +30,7 @@ export interface Case {
   latitude: number;
   /** 経度（-180〜180） */
   longitude: number;
-  /** ステータス（対応中/完了） */
+  /** ステータス（未対応/移動中/対応中/完了） */
   status: CaseStatus;
   /** 優先度（高/中/低） */
   priority: CasePriority;
@@ -55,7 +57,7 @@ export interface NewCase {
   latitude: number;
   /** 経度（必須） */
   longitude: number;
-  /** ステータス（オプション、デフォルト: "open"） */
+  /** ステータス（オプション、デフォルト: "pending"） */
   status?: CaseStatus;
   /** 優先度（オプション、デフォルト: "medium"） */
   priority?: CasePriority;
@@ -98,4 +100,3 @@ export interface UserLocation {
   longitude: number;
   updated_at: string;
 }
-

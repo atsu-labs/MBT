@@ -11,7 +11,7 @@ Cloudflare Workers + D1データベース + React Router v7（SSRモード）を
   - レイヤー切り替えで表示内容をカスタマイズ
 - 📋 **事案管理**: リアルタイムでトラブル・事案を記録
   - 優先度別の色分け表示（高/中/低）
-  - ステータス管理（対応中/完了）
+  - ステータス管理（未対応/移動中/対応中/完了）
   - 地図上で位置を特定
 - 💼 **PC向け管理画面**: 
   - ダッシュボードで統計情報を確認
@@ -218,7 +218,7 @@ MBT/
 | description | TEXT | 事案の説明 |
 | latitude | REAL | 緯度 |
 | longitude | REAL | 経度 |
-| status | TEXT | ステータス (open/closed) |
+| status | TEXT | ステータス (pending/en_route/in_progress/completed) |
 | priority | TEXT | 優先度 (high/medium/low) |
 | created_at | DATETIME | 作成日時 |
 | updated_at | DATETIME | 更新日時 |

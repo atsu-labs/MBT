@@ -2,6 +2,7 @@ import { useState, useCallback } from "react";
 import { Form, redirect } from "react-router";
 import Map from "~/components/Map";
 import { createCase } from "~/lib/db.server";
+import { CASE_STATUS_OPTIONS } from "~/lib/case-display";
 import "~/lib/context";
 import type { NewCase, CaseStatus, CasePriority } from "~/lib/types";
 import type { Route } from ".react-router/types/app/routes/+types/admin.cases.new";
@@ -27,7 +28,7 @@ export async function action({ request, context }: Route.ActionArgs) {
     description: (formData.get("description") as string) || undefined,
     latitude,
     longitude,
-    status: (formData.get("status") as CaseStatus) || "open",
+    status: (formData.get("status") as CaseStatus) || "pending",
     priority: (formData.get("priority") as CasePriority) || "medium",
     assigned_team: (formData.get("assigned_team") as string) || null,
     result: (formData.get("result") as string)?.trim() || null,
@@ -41,7 +42,7 @@ export default function NewCase() {
     description: "",
     latitude: HAKODATE_CENTER[0],
     longitude: HAKODATE_CENTER[1],
-    status: "open",
+    status: "pending",
     priority: "medium",
     assigned_team: null,
     result: null,
@@ -62,7 +63,7 @@ export default function NewCase() {
     description: formData.description || "",
     latitude: formData.latitude,
     longitude: formData.longitude,
-    status: formData.status || "open",
+    status: formData.status || "pending",
     priority: formData.priority || "medium",
   };
 
@@ -163,8 +164,11 @@ export default function NewCase() {
                   })
                 }
               >
-                <option value="open">対応中</option>
-                <option value="closed">完了</option>
+                {CASE_STATUS_OPTIONS.map((status) => (
+                  <option key={status.value} value={status.value}>
+                    {status.label}
+                  </option>
+                ))}
               </select>
             </div>
 
