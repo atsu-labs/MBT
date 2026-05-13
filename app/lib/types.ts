@@ -32,6 +32,10 @@ export interface Case {
   status: CaseStatus;
   /** 優先度（高/中/低） */
   priority: CasePriority;
+  /** 担当チーム（MBT1〜MBT17, null可） */
+  assigned_team: string | null;
+  /** 結果（自由入力, null可） */
+  result: string | null;
   /** 作成日時（ISO 8601形式） */
   created_at: string;
   /** 更新日時（ISO 8601形式） */
@@ -55,6 +59,10 @@ export interface NewCase {
   status?: CaseStatus;
   /** 優先度（オプション、デフォルト: "medium"） */
   priority?: CasePriority;
+  /** 担当チーム（MBT1〜MBT17, オプション） */
+  assigned_team?: string | null;
+  /** 結果（自由入力, オプション） */
+  result?: string | null;
 }
 
 /**
@@ -74,6 +82,10 @@ export interface UpdateCase {
   status?: CaseStatus;
   /** 優先度 */
   priority?: CasePriority;
+  /** 担当チーム */
+  assigned_team?: string | null;
+  /** 結果 */
+  result?: string | null;
 }
 
 /**

@@ -6,6 +6,8 @@ import "~/lib/context";
 import type { Case, CaseStatus, CasePriority } from "~/lib/types";
 import type { Route } from ".react-router/types/app/routes/+types/admin.cases.$id.edit";
 
+const MBT_TEAMS = Array.from({ length: 17 }, (_, i) => `MBT${i + 1}`);
+
 export async function loader({ params, context }: Route.LoaderArgs) {
   const id = parseInt(params.id!);
   if (isNaN(id) || id <= 0) throw new Response("Not Found", { status: 404 });
@@ -36,6 +38,8 @@ export async function action({ params, request, context }: Route.ActionArgs) {
     longitude,
     status: formData.get("status") as CaseStatus,
     priority: formData.get("priority") as CasePriority,
+    assigned_team: (formData.get("assigned_team") as string) || null,
+    result: (formData.get("result") as string)?.trim() || null,
   });
   return redirect(`/admin/cases/${id}`);
 }
@@ -168,6 +172,38 @@ export default function EditCase() {
                 <option value="medium">中</option>
                 <option value="low">低</option>
               </select>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="assigned_team">担当チーム</label>
+              <select
+                id="assigned_team"
+                name="assigned_team"
+                value={formData.assigned_team || ""}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    assigned_team: e.target.value || null,
+                  })
+                }
+              >
+                <option value="">未定</option>
+                {MBT_TEAMS.map((team) => (
+                  <option key={team} value={team}>{team}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="result">結果</label>
+              <textarea
+                id="result"
+                name="result"
+                value={formData.result || ""}
+                onChange={(e) =>
+                  setFormData({ ...formData, result: e.target.value || null })
+                }
+              />
             </div>
 
             <div style={{ display: "flex", gap: "1rem", marginTop: "1.5rem" }}>

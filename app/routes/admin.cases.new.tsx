@@ -7,6 +7,7 @@ import type { NewCase, CaseStatus, CasePriority } from "~/lib/types";
 import type { Route } from ".react-router/types/app/routes/+types/admin.cases.new";
 
 const HAKODATE_CENTER: [number, number] = [41.786085560648345, 140.7452487945557];
+const MBT_TEAMS = Array.from({ length: 17 }, (_, i) => `MBT${i + 1}`);
 
 export async function action({ request, context }: Route.ActionArgs) {
   const formData = await request.formData();
@@ -28,6 +29,8 @@ export async function action({ request, context }: Route.ActionArgs) {
     longitude,
     status: (formData.get("status") as CaseStatus) || "open",
     priority: (formData.get("priority") as CasePriority) || "medium",
+    assigned_team: (formData.get("assigned_team") as string) || null,
+    result: (formData.get("result") as string)?.trim() || null,
   });
   return redirect("/admin/cases");
 }
@@ -40,6 +43,8 @@ export default function NewCase() {
     longitude: HAKODATE_CENTER[1],
     status: "open",
     priority: "medium",
+    assigned_team: null,
+    result: null,
   });
 
   const handleMapClick = useCallback((lat: number, lng: number) => {
@@ -180,6 +185,38 @@ export default function NewCase() {
                 <option value="medium">中</option>
                 <option value="low">低</option>
               </select>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="assigned_team">担当チーム</label>
+              <select
+                id="assigned_team"
+                name="assigned_team"
+                value={formData.assigned_team || ""}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    assigned_team: e.target.value || null,
+                  })
+                }
+              >
+                <option value="">未定</option>
+                {MBT_TEAMS.map((team) => (
+                  <option key={team} value={team}>{team}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="result">結果</label>
+              <textarea
+                id="result"
+                name="result"
+                value={formData.result || ""}
+                onChange={(e) =>
+                  setFormData({ ...formData, result: e.target.value || null })
+                }
+              />
             </div>
 
             <div className="case-new-actions">

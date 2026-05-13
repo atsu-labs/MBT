@@ -112,6 +112,9 @@ export default function CasesList() {
                     <span className={`badge badge-${caseItem.priority}`}>
                       {caseItem.priority}
                     </span>
+                    {caseItem.assigned_team && (
+                      <span className="badge">{caseItem.assigned_team}</span>
+                    )}
                   </div>
                   {caseItem.description && (
                     <p style={{ color: "#666", marginBottom: "0.5rem" }}>
