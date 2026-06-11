@@ -75,7 +75,7 @@ interface MapProps {
   cases?: Case[];
   /** 地図の初期中心座標 [緯度, 経度] (デフォルト: 函館) */
   center?: [number, number];
-  /** 地図の初期ズームレベル (デフォルト: 10) */
+  /** 地図の初期ズームレベル (デフォルト: 13) */
   zoom?: number;
   /** 地図クリック時のコールバック関数 */
   onMapClick?: (lat: number, lng: number) => void;
