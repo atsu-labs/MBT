@@ -114,7 +114,7 @@ interface MapProps {
 const Map = forwardRef<MapHandle, MapProps>(function Map({
   cases = [],
   center = [41.786085560648345, 140.7452487945557], // デフォルトは函館
-  zoom = 10,
+  zoom = 13,
   onMapClick,
   selectedCaseId,
   userLocations = [],
@@ -308,6 +308,10 @@ const Map = forwardRef<MapHandle, MapProps>(function Map({
       "AED": aedLayer,
       "コース": courseLayer,
     };
+
+    // 初期状態で「救護所」と「コース」を表示する
+    firstAidLayer.addTo(map);
+    courseLayer.addTo(map);
 
     // レイヤーコントロールを追加
     L.control.layers(null, overlayMaps, { collapsed: false }).addTo(map);
