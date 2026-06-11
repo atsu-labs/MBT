@@ -9,8 +9,8 @@
     "start": "wrangler dev",
     "deploy": "npm run build && wrangler deploy",
     "typecheck": "tsc",
-    "db:migrate:local": "wrangler d1 execute mbt-db --local --file=./migrations/0001_initial_schema.sql",
-    "db:migrate:remote": "wrangler d1 execute mbt-db --remote --file=./migrations/0001_initial_schema.sql"
+    "db:migrate:local": "wrangler d1 migrations apply mbt-db --local",
+    "db:migrate:remote": "wrangler d1 migrations apply mbt-db --remote --yes"
   },
   "keywords": [
     "remix",
