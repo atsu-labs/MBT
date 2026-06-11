@@ -217,7 +217,7 @@ export default function MobileView() {
       <div className="mobile-map-area">
         <Map
           ref={mapRef}
-          cases={filteredCases}
+          cases={filteredCases.filter((c) => c.status !== "completed")}
           selectedCaseId={selectedCase?.id}
           userLocations={userLocations}
           mySessionId={sessionId}
@@ -324,25 +324,32 @@ export default function MobileView() {
                     tabIndex={0}
                     onKeyDown={(e) => e.key === "Enter" && handleCaseSelect(caseItem)}
                   >
-                    <div className="mobile-case-item-header">
+                    <div className="mobile-case-item-header" style={{ display: "flex", justifyContent: "flex-start", gap: "0.25rem", flexWrap: "wrap", marginBottom: "0.375rem" }}>
+                      <span className={`badge badge-${caseItem.priority}`} style={{ fontSize: "0.75rem" }}>
+                        No.{caseItem.id}
+                      </span>
+                      <span className="badge" style={{ fontSize: "0.75rem" }}>
+                        {getCaseTeamLabel(caseItem.assigned_team)}
+                      </span>
+                      <span className={`badge ${getCaseStatusBadgeClass(caseItem.status)}`} style={{ fontSize: "0.75rem" }}>
+                        {getCaseStatusLabel(caseItem.status)}
+                      </span>
+                    </div>
+                    <div style={{ marginBottom: "0.375rem" }}>
                       <h3 className="mobile-case-title">{caseItem.title}</h3>
-                      <div style={{ display: "flex", gap: "0.25rem", flexShrink: 0 }}>
-                        <span className={`badge ${getCaseStatusBadgeClass(caseItem.status)}`} style={{ fontSize: "0.75rem" }}>
-                          {getCaseStatusLabel(caseItem.status)}
-                        </span>
-                        <span className={`badge badge-${caseItem.priority}`} style={{ fontSize: "0.75rem" }}>
-                          {getCasePriorityLabel(caseItem.priority)}
-                        </span>
-                        <span className="badge" style={{ fontSize: "0.75rem" }}>
-                          {getCaseTeamLabel(caseItem.assigned_team)}
-                        </span>
-                      </div>
                     </div>
                     {caseItem.description && (
-                      <p className="mobile-case-description">
+                      <p className="mobile-case-description" style={{ marginBottom: "0.375rem" }}>
                         {caseItem.description.length > 80
                           ? `${caseItem.description.slice(0, 80)}...`
                           : caseItem.description}
+                      </p>
+                    )}
+                    {caseItem.result && (
+                      <p className="mobile-case-result" style={{ fontSize: "0.8rem", color: "#27ae60", fontWeight: "500", margin: 0 }}>
+                        結果: {caseItem.result.length > 80
+                          ? `${caseItem.result.slice(0, 80)}...`
+                          : caseItem.result}
                       </p>
                     )}
                     <p className="mobile-case-time">
