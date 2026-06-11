@@ -24,8 +24,10 @@ export default function CasesList() {
   const { cases } = useLoaderData<typeof loader>();
   const fetcher = useFetcher();
   const [searchParams, setSearchParams] = useSearchParams();
-  const initialFilter = (searchParams.get("status") as any) || "all";
-  const [filter, setFilter] = useState<"all" | (typeof CASE_STATUS_OPTIONS)[number]["value"]>(initialFilter);
+  const statusParam = searchParams.get("status");
+  const filter = (statusParam && CASE_STATUS_OPTIONS.some((opt) => opt.value === statusParam))
+    ? (statusParam as (typeof CASE_STATUS_OPTIONS)[number]["value"])
+    : "all";
   const [sortBy, setSortBy] = useState<"created" | "priority">("created");
   const selectedFilterLabel =
     CASE_STATUS_OPTIONS.find((status) => status.value === filter)?.label ?? "該当ステータス";
@@ -70,13 +72,13 @@ export default function CasesList() {
                 value={filter}
                 onChange={(e) => {
                   const val = e.target.value;
-                  setFilter(val as any);
+                  const newParams = new URLSearchParams(searchParams);
                   if (val === "all") {
-                    searchParams.delete("status");
+                    newParams.delete("status");
                   } else {
-                    searchParams.set("status", val);
+                    newParams.set("status", val);
                   }
-                  setSearchParams(searchParams);
+                  setSearchParams(newParams);
                 }}
                 style={{ padding: "0.5rem", borderRadius: "4px", border: "1px solid #ddd" }}
               >
