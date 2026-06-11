@@ -1,7 +1,6 @@
 -- 既存DBのcasesテーブルのstatusデフォルト値をpendingへ更新
 -- SQLite(D1)では既存カラムのDEFAULTをALTER TABLEで変更できないため、テーブル再作成で反映する
 -- 本番適用前に必ずバックアップと検証を行うこと
-BEGIN TRANSACTION;
 
 CREATE TABLE cases_new (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -50,4 +49,3 @@ ALTER TABLE cases_new RENAME TO cases;
 CREATE INDEX IF NOT EXISTS idx_cases_status ON cases(status);
 CREATE INDEX IF NOT EXISTS idx_cases_created_at ON cases(created_at);
 
-COMMIT;
