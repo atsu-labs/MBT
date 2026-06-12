@@ -69,7 +69,7 @@ export default function EditCase() {
       </div>
 
       <h2 style={{ marginBottom: "1.5rem", fontSize: "1.8rem" }}>
-        事案編集
+        事案編集 (No.{formData.id})
       </h2>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2rem" }}>

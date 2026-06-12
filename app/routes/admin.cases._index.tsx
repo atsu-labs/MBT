@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useLoaderData, useFetcher, Link } from "react-router";
+import { useLoaderData, useFetcher, Link, useSearchParams } from "react-router";
 import { getAllCases, deleteCase } from "~/lib/db.server";
 import { CASE_STATUS_OPTIONS, getCasePriorityLabel, getCaseStatusBadgeClass, getCaseStatusLabel, getCaseTeamLabel } from "~/lib/case-display";
 import "~/lib/context";
@@ -23,7 +23,11 @@ export async function action({ request, context }: Route.ActionArgs) {
 export default function CasesList() {
   const { cases } = useLoaderData<typeof loader>();
   const fetcher = useFetcher();
-  const [filter, setFilter] = useState<"all" | (typeof CASE_STATUS_OPTIONS)[number]["value"]>("all");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const statusParam = searchParams.get("status");
+  const filter = (statusParam && CASE_STATUS_OPTIONS.some((opt) => opt.value === statusParam))
+    ? (statusParam as (typeof CASE_STATUS_OPTIONS)[number]["value"])
+    : "all";
   const [sortBy, setSortBy] = useState<"created" | "priority">("created");
   const selectedFilterLabel =
     CASE_STATUS_OPTIONS.find((status) => status.value === filter)?.label ?? "該当ステータス";
@@ -66,7 +70,16 @@ export default function CasesList() {
             <label style={{ marginRight: "0.5rem" }}>ステータス:</label>
               <select
                 value={filter}
-                onChange={(e) => setFilter(e.target.value as "all" | (typeof CASE_STATUS_OPTIONS)[number]["value"])}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  const newParams = new URLSearchParams(searchParams);
+                  if (val === "all") {
+                    newParams.delete("status");
+                  } else {
+                    newParams.set("status", val);
+                  }
+                  setSearchParams(newParams);
+                }}
                 style={{ padding: "0.5rem", borderRadius: "4px", border: "1px solid #ddd" }}
               >
                 <option value="all">すべて</option>
@@ -105,24 +118,31 @@ export default function CasesList() {
             <div key={caseItem.id} className="card">
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", gap: "1rem" }}>
                 <div style={{ flex: 1 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem", flexWrap: "wrap" }}>
+                    <span className={`badge badge-${caseItem.priority}`}>
+                      No.{caseItem.id}
+                    </span>
+                    <span className="badge">{getCaseTeamLabel(caseItem.assigned_team)}</span>
+                    <span className={`badge ${getCaseStatusBadgeClass(caseItem.status)}`}>
+                      {getCaseStatusLabel(caseItem.status)}
+                    </span>
+                  </div>
+                  <div style={{ marginBottom: "0.5rem" }}>
                     <Link
                       to={`/admin/cases/${caseItem.id}`}
                       style={{ fontSize: "1.2rem", fontWeight: "600", textDecoration: "none", color: "#2c3e50" }}
                     >
                       {caseItem.title}
                     </Link>
-                    <span className={`badge ${getCaseStatusBadgeClass(caseItem.status)}`}>
-                      {getCaseStatusLabel(caseItem.status)}
-                    </span>
-                    <span className={`badge badge-${caseItem.priority}`}>
-                      {getCasePriorityLabel(caseItem.priority)}
-                    </span>
-                    <span className="badge">{getCaseTeamLabel(caseItem.assigned_team)}</span>
                   </div>
                   {caseItem.description && (
                     <p style={{ color: "#666", marginBottom: "0.5rem" }}>
                       {caseItem.description}
+                    </p>
+                  )}
+                  {caseItem.result && (
+                    <p style={{ color: "#27ae60", fontWeight: "500", fontSize: "0.95rem", marginBottom: "0.5rem" }}>
+                      結果: {caseItem.result}
                     </p>
                   )}
                   <p style={{ fontSize: "0.875rem", color: "#999" }}>

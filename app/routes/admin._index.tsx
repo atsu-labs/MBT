@@ -12,10 +12,21 @@ export async function loader({ context }: Route.LoaderArgs) {
 
 export default function AdminDashboard() {
   const { cases } = useLoaderData<typeof loader>();
-  const recentCases = [...cases]
+  
+  // 進行中・未完了の事案（completed 以外）
+  const activeCases = cases.filter((c) => c.status !== "completed");
+  
+  // 完了した事案
+  const completedCases = cases.filter((c) => c.status === "completed");
+
+  // 最近の事案（未完了事案のみ）
+  const recentCases = activeCases.slice(0, 6);
+
+  // 最近の完了事案
+  const recentCompletedCases = [...completedCases]
     .sort(
       (left, right) =>
-        new Date(right.created_at).getTime() - new Date(left.created_at).getTime()
+        new Date(right.updated_at).getTime() - new Date(left.updated_at).getTime()
     )
     .slice(0, 6);
 
@@ -74,7 +85,7 @@ export default function AdminDashboard() {
             </Link>
           </div>
           <div className="dashboard-map-wrapper">
-            <Map cases={cases} />
+            <Map cases={activeCases} />
           </div>
         </div>
 
@@ -86,7 +97,7 @@ export default function AdminDashboard() {
           </div>
           {recentCases.length === 0 ? (
             <p className="dashboard-empty-state">
-              事案がまだ登録されていません。
+              アクティブな事案はありません。
             </p>
           ) : (
             <ul className="case-list dashboard-case-list">
@@ -96,23 +107,81 @@ export default function AdminDashboard() {
                     to={`/admin/cases/${caseItem.id}`}
                     className="dashboard-case-link"
                   >
-                    <div className="case-item-header dashboard-case-item-header">
-                      <span className="case-item-title dashboard-case-item-title">{caseItem.title}</span>
-                      <div className="dashboard-case-badges">
-                        <span className={`badge ${getCaseStatusBadgeClass(caseItem.status)}`}>
-                          {getCaseStatusLabel(caseItem.status)}
-                        </span>
-                        <span className={`badge badge-${caseItem.priority}`}>
-                          {getCasePriorityLabel(caseItem.priority)}
-                        </span>
-                        <span className="badge">{getCaseTeamLabel(caseItem.assigned_team)}</span>
-                      </div>
+                    <div className="case-item-header dashboard-case-item-header" style={{ justifyContent: "flex-start", gap: "0.5rem", flexWrap: "wrap" }}>
+                      <span className={`badge badge-${caseItem.priority}`}>
+                        No.{caseItem.id}
+                      </span>
+                      <span className="badge">{getCaseTeamLabel(caseItem.assigned_team)}</span>
+                      <span className={`badge ${getCaseStatusBadgeClass(caseItem.status)}`}>
+                        {getCaseStatusLabel(caseItem.status)}
+                      </span>
+                    </div>
+                    <div className="case-item-title dashboard-case-item-title" style={{ marginTop: "0.5rem", fontWeight: "600", fontSize: "1rem", color: "#2c3e50" }}>
+                      {caseItem.title}
                     </div>
                     {caseItem.description && (
-                      <p className="dashboard-case-description">
+                      <p className="dashboard-case-description" style={{ marginTop: "0.25rem" }}>
                         {caseItem.description.length > 80
                           ? `${caseItem.description.slice(0, 80)}...`
                           : caseItem.description}
+                      </p>
+                    )}
+                    {caseItem.result && (
+                      <p className="dashboard-case-result" style={{ marginTop: "0.25rem", fontSize: "0.9rem", color: "#27ae60", fontWeight: "500" }}>
+                        結果: {caseItem.result.length > 80
+                          ? `${caseItem.result.slice(0, 80)}...`
+                          : caseItem.result}
+                      </p>
+                    )}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        {/* 完了事案 */}
+        <div className="card dashboard-panel dashboard-cases-panel">
+          <div className="card-header dashboard-panel-header">
+            <h3 className="card-title">完了事案</h3>
+            <Link to="/admin/cases?status=completed">すべて表示</Link>
+          </div>
+          {recentCompletedCases.length === 0 ? (
+            <p className="dashboard-empty-state">
+              完了した事案はありません。
+            </p>
+          ) : (
+            <ul className="case-list dashboard-case-list">
+              {recentCompletedCases.map((caseItem) => (
+                <li key={caseItem.id} className="case-item dashboard-case-item">
+                  <Link
+                    to={`/admin/cases/${caseItem.id}`}
+                    className="dashboard-case-link"
+                  >
+                    <div className="case-item-header dashboard-case-item-header" style={{ justifyContent: "flex-start", gap: "0.5rem", flexWrap: "wrap" }}>
+                      <span className={`badge badge-${caseItem.priority}`}>
+                        No.{caseItem.id}
+                      </span>
+                      <span className="badge">{getCaseTeamLabel(caseItem.assigned_team)}</span>
+                      <span className={`badge ${getCaseStatusBadgeClass(caseItem.status)}`}>
+                        {getCaseStatusLabel(caseItem.status)}
+                      </span>
+                    </div>
+                    <div className="case-item-title dashboard-case-item-title" style={{ marginTop: "0.5rem", fontWeight: "600", fontSize: "1rem", color: "#2c3e50" }}>
+                      {caseItem.title}
+                    </div>
+                    {caseItem.description && (
+                      <p className="dashboard-case-description" style={{ marginTop: "0.25rem" }}>
+                        {caseItem.description.length > 80
+                          ? `${caseItem.description.slice(0, 80)}...`
+                          : caseItem.description}
+                      </p>
+                    )}
+                    {caseItem.result && (
+                      <p className="dashboard-case-result" style={{ marginTop: "0.25rem", fontSize: "0.9rem", color: "#27ae60", fontWeight: "500" }}>
+                        結果: {caseItem.result.length > 80
+                          ? `${caseItem.result.slice(0, 80)}...`
+                          : caseItem.result}
                       </p>
                     )}
                   </Link>

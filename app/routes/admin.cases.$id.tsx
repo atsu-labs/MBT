@@ -35,7 +35,7 @@ export default function CaseDetail() {
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", marginBottom: "1.5rem" }}>
           <div>
             <h2 style={{ fontSize: "1.8rem", marginBottom: "0.5rem" }}>
-              {caseItem.title}
+              No.{caseItem.id}: {caseItem.title}
             </h2>
             <div style={{ display: "flex", gap: "0.5rem" }}>
               <span className={`badge ${getCaseStatusBadgeClass(caseItem.status)}`}>
