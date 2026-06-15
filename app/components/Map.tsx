@@ -65,6 +65,8 @@ export interface MapHandle {
   zoomOut: () => void;
   /** 指定座標へ滑らかに移動 */
   flyTo: (lat: number, lng: number, zoom?: number) => void;
+  /** 現在の表示領域（中心座標とズームレベル）を取得 */
+  getViewport: () => { center: [number, number]; zoom: number } | null;
 }
 
 /**
@@ -79,8 +81,7 @@ interface MapProps {
   zoom?: number;
   /** 地図クリック時のコールバック関数 */
   onMapClick?: (lat: number, lng: number) => void;
-  /** 地図の表示領域（中心座標や拡大率）が変更されたときのコールバック関数 */
-  onViewportChange?: (center: [number, number], zoom: number) => void;
+
   /** 選択中の事案ID（選択中の事案は強調表示される） */
   selectedCaseId?: number;
   /** 他ユーザーおよび自分の位置情報の配列 */
@@ -118,7 +119,6 @@ const Map = forwardRef<MapHandle, MapProps>(function Map({
   center = [41.786085560648345, 140.7452487945557], // デフォルトは函館
   zoom = 13,
   onMapClick,
-  onViewportChange,
   selectedCaseId,
   userLocations = [],
   mySessionId = null,
@@ -137,11 +137,9 @@ const Map = forwardRef<MapHandle, MapProps>(function Map({
 
   // コールバックを ref で保持（再レンダリングによる地図の再初期化を防ぐ）
   const onMapClickRef = useRef(onMapClick);
-  const onViewportChangeRef = useRef(onViewportChange);
   useEffect(() => {
     onMapClickRef.current = onMapClick;
-    onViewportChangeRef.current = onViewportChange;
-  }, [onMapClick, onViewportChange]);
+  }, [onMapClick]);
 
   // 親コンポーネントへ公開する操作 API
   useImperativeHandle(ref, () => ({
@@ -155,6 +153,14 @@ const Map = forwardRef<MapHandle, MapProps>(function Map({
       if (!mapInstanceRef.current) return;
       const currentZoom = zoom ?? mapInstanceRef.current.getZoom();
       mapInstanceRef.current.flyTo([lat, lng], currentZoom);
+    },
+    getViewport: () => {
+      if (!mapInstanceRef.current) return null;
+      const center = mapInstanceRef.current.getCenter();
+      return {
+        center: [center.lat, center.lng],
+        zoom: mapInstanceRef.current.getZoom(),
+      };
     },
   }), []);
 
@@ -328,20 +334,9 @@ const Map = forwardRef<MapHandle, MapProps>(function Map({
       }
     });
 
-    // viewportの変更（移動、ズームなど）を監視
-    const handleMoveEnd = () => {
-      if (onViewportChangeRef.current) {
-        const currentCenter = map.getCenter();
-        const currentZoom = map.getZoom();
-        onViewportChangeRef.current([currentCenter.lat, currentCenter.lng], currentZoom);
-      }
-    };
-    map.on("moveend", handleMoveEnd);
-
     mapInstanceRef.current = map;
 
     return () => {
-      map.off("moveend", handleMoveEnd);
       map.remove();
       mapInstanceRef.current = null;
     };
