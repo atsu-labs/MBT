@@ -42,9 +42,13 @@ export default function NewCase() {
   const paramLng = searchParams.get("lng");
   const paramZoom = searchParams.get("zoom");
 
-  const initialLat = paramLat ? parseFloat(paramLat) : HAKODATE_CENTER[0];
-  const initialLng = paramLng ? parseFloat(paramLng) : HAKODATE_CENTER[1];
-  const initialZoom = paramZoom ? parseInt(paramZoom, 10) : 13;
+  const parsedLat = paramLat ? parseFloat(paramLat) : NaN;
+  const parsedLng = paramLng ? parseFloat(paramLng) : NaN;
+  const parsedZoom = paramZoom ? parseInt(paramZoom, 10) : NaN;
+
+  const initialLat = isNaN(parsedLat) ? HAKODATE_CENTER[0] : parsedLat;
+  const initialLng = isNaN(parsedLng) ? HAKODATE_CENTER[1] : parsedLng;
+  const initialZoom = isNaN(parsedZoom) ? 13 : parsedZoom;
 
   const [formData, setFormData] = useState<NewCase>({
     title: "",
