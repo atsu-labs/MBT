@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { Form, redirect } from "react-router";
+import { Form, redirect, useSearchParams } from "react-router";
 import Map from "~/components/Map";
 import { createCase } from "~/lib/db.server";
 import { CASE_STATUS_OPTIONS } from "~/lib/case-display";
@@ -37,11 +37,24 @@ export async function action({ request, context }: Route.ActionArgs) {
 }
 
 export default function NewCase() {
+  const [searchParams] = useSearchParams();
+  const paramLat = searchParams.get("lat");
+  const paramLng = searchParams.get("lng");
+  const paramZoom = searchParams.get("zoom");
+
+  const parsedLat = paramLat ? parseFloat(paramLat) : NaN;
+  const parsedLng = paramLng ? parseFloat(paramLng) : NaN;
+  const parsedZoom = paramZoom ? parseInt(paramZoom, 10) : NaN;
+
+  const initialLat = isNaN(parsedLat) ? HAKODATE_CENTER[0] : parsedLat;
+  const initialLng = isNaN(parsedLng) ? HAKODATE_CENTER[1] : parsedLng;
+  const initialZoom = isNaN(parsedZoom) ? 13 : parsedZoom;
+
   const [formData, setFormData] = useState<NewCase>({
     title: "",
     description: "",
-    latitude: HAKODATE_CENTER[0],
-    longitude: HAKODATE_CENTER[1],
+    latitude: initialLat,
+    longitude: initialLng,
     status: "pending",
     priority: "medium",
     assigned_team: null,
@@ -79,8 +92,8 @@ export default function NewCase() {
           <div className="case-new-map-wrapper">
             <Map
               cases={[previewCase]}
-              center={HAKODATE_CENTER}
-              zoom={13}
+              center={[initialLat, initialLng]}
+              zoom={initialZoom}
               onMapClick={handleMapClick}
             />
           </div>

@@ -4,7 +4,8 @@ node_modules
 .env
 .dev.vars
 .wrangler
-.react-router
+.react-router/*
+!.react-router/tsconfig.json
 
 # OS
 .DS_Store

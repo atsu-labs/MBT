@@ -5,6 +5,7 @@ export interface Env {
   ASSETS: { fetch: typeof fetch };
   BASIC_AUTH_USERNAME?: string;
   BASIC_AUTH_PASSWORD?: string;
+  LOCATION_SHARE_PASSCODE?: string;
 }
 
 declare module "react-router" {
