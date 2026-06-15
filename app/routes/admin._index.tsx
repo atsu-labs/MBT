@@ -1,6 +1,7 @@
-import { useLoaderData, Link, useNavigate } from "react-router";
-import { useRef } from "react";
-import Map, { type MapHandle } from "~/components/Map";
+import { useLoaderData, Link } from "react-router";
+import { useState } from "react";
+import Map from "~/components/Map";
+import type { Case } from "~/lib/types";
 import { getAllCases } from "~/lib/db.server";
 import { getCasePriorityLabel, getCaseStatusBadgeClass, getCaseStatusLabel, getCaseTeamLabel } from "~/lib/case-display";
 import "~/lib/context";
@@ -13,17 +14,6 @@ export async function loader({ context }: Route.LoaderArgs) {
 
 export default function AdminDashboard() {
   const { cases } = useLoaderData<typeof loader>();
-  const navigate = useNavigate();
-  const mapRef = useRef<MapHandle>(null);
-
-  const handleNewCaseClick = () => {
-    const viewport = mapRef.current?.getViewport();
-    if (viewport) {
-      navigate(`/admin/cases/new?lat=${viewport.center[0]}&lng=${viewport.center[1]}&zoom=${viewport.zoom}`);
-    } else {
-      navigate("/admin/cases/new");
-    }
-  };
   
   // 進行中・未完了の事案（completed 以外）
   const activeCases = cases.filter((c) => c.status !== "completed");
@@ -89,23 +79,7 @@ export default function AdminDashboard() {
 
       <div className="dashboard-main">
         {/* 地図 */}
-        <div className="card dashboard-panel dashboard-map-panel">
-          <div className="card-header dashboard-panel-header">
-            <h3 className="card-title">事案マップ</h3>
-            <button
-              onClick={handleNewCaseClick}
-              className="btn btn-primary"
-            >
-              新規事案作成
-            </button>
-          </div>
-          <div className="dashboard-map-wrapper">
-            <Map
-              ref={mapRef}
-              cases={activeCases}
-            />
-          </div>
-        </div>
+        <DashboardMap cases={activeCases} />
 
         {/* 最近の事案 */}
         <div className="card dashboard-panel dashboard-cases-panel">
@@ -208,6 +182,38 @@ export default function AdminDashboard() {
             </ul>
           )}
         </div>
+      </div>
+    </div>
+  );
+}
+
+interface DashboardMapProps {
+  cases: Case[];
+}
+
+function DashboardMap({ cases }: DashboardMapProps) {
+  const [mapViewport, setMapViewport] = useState<{ center: [number, number]; zoom: number } | null>(null);
+
+  return (
+    <div className="card dashboard-panel dashboard-map-panel">
+      <div className="card-header dashboard-panel-header">
+        <h3 className="card-title">事案マップ</h3>
+        <Link
+          to={
+            mapViewport
+              ? `/admin/cases/new?lat=${mapViewport.center[0]}&lng=${mapViewport.center[1]}&zoom=${mapViewport.zoom}`
+              : "/admin/cases/new"
+          }
+          className="btn btn-primary"
+        >
+          新規事案作成
+        </Link>
+      </div>
+      <div className="dashboard-map-wrapper">
+        <Map
+          cases={cases}
+          onViewportChange={(center, zoom) => setMapViewport({ center, zoom })}
+        />
       </div>
     </div>
   );
