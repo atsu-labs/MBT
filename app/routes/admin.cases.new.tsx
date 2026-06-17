@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { Form, redirect, useSearchParams } from "react-router";
 import Map from "~/components/Map";
+import AdminLocationToggle from "~/components/AdminLocationToggle";
 import { useActiveLocations } from "~/lib/useActiveLocations";
 import { createCase } from "~/lib/db.server";
 import { CASE_STATUS_OPTIONS } from "~/lib/case-display";
@@ -93,17 +94,10 @@ export default function NewCase() {
               <h3 className="card-title">位置を選択</h3>
               <p className="case-new-map-hint">地図をクリックして位置を設定できます</p>
             </div>
-            <label className="admin-toggle-container">
-              <span className="admin-toggle-label">位置情報を表示</span>
-              <span className="admin-toggle">
-                <input
-                  type="checkbox"
-                  checked={showUserLocations}
-                  onChange={(e) => toggleUserLocations(e.target.checked)}
-                />
-                <span className="admin-toggle-slider" />
-              </span>
-            </label>
+            <AdminLocationToggle
+              checked={showUserLocations}
+              onChange={toggleUserLocations}
+            />
           </div>
           <div className="case-new-map-wrapper">
             <Map

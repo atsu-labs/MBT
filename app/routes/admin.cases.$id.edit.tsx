@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useLoaderData, redirect, Link, Form } from "react-router";
 import Map from "~/components/Map";
+import AdminLocationToggle from "~/components/AdminLocationToggle";
 import { useActiveLocations } from "~/lib/useActiveLocations";
 import { getCaseById, updateCase } from "~/lib/db.server";
 import { CASE_STATUS_OPTIONS } from "~/lib/case-display";
@@ -230,17 +231,10 @@ export default function EditCase() {
         <div className="card">
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
             <h3 style={{ margin: 0 }}>位置を選択</h3>
-            <label className="admin-toggle-container">
-              <span className="admin-toggle-label">位置情報を表示</span>
-              <span className="admin-toggle">
-                <input
-                  type="checkbox"
-                  checked={showUserLocations}
-                  onChange={(e) => toggleUserLocations(e.target.checked)}
-                />
-                <span className="admin-toggle-slider" />
-              </span>
-            </label>
+            <AdminLocationToggle
+              checked={showUserLocations}
+              onChange={toggleUserLocations}
+            />
           </div>
           <p style={{ color: "#666", marginBottom: "1rem", fontSize: "0.9rem" }}>
             地図をクリックして位置を変更できます

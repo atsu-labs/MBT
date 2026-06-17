@@ -1,5 +1,6 @@
 import { useLoaderData, redirect, Link, Form } from "react-router";
 import Map from "~/components/Map";
+import AdminLocationToggle from "~/components/AdminLocationToggle";
 import { useActiveLocations } from "~/lib/useActiveLocations";
 import { getCaseById, deleteCase } from "~/lib/db.server";
 import { getCasePriorityLabel, getCaseStatusBadgeClass, getCaseStatusLabel, getCaseTeamLabel } from "~/lib/case-display";
@@ -110,17 +111,10 @@ export default function CaseDetail() {
         <div>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
             <h3 style={{ fontSize: "1.1rem", margin: 0 }}>地図</h3>
-            <label className="admin-toggle-container">
-              <span className="admin-toggle-label">位置情報を表示</span>
-              <span className="admin-toggle">
-                <input
-                  type="checkbox"
-                  checked={showUserLocations}
-                  onChange={(e) => toggleUserLocations(e.target.checked)}
-                />
-                <span className="admin-toggle-slider" />
-              </span>
-            </label>
+            <AdminLocationToggle
+              checked={showUserLocations}
+              onChange={toggleUserLocations}
+            />
           </div>
           <Map
             cases={[caseItem]}

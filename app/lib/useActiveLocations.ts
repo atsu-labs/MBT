@@ -11,19 +11,29 @@ export function useActiveLocations() {
 
   // マウント時に localStorage から表示状態を読み込む
   useEffect(() => {
-    const stored = localStorage.getItem("mbt_admin_showUserLocations");
-    if (stored !== null) {
-      setShowUserLocations(stored === "true");
+    try {
+      const stored = localStorage.getItem("mbt_admin_showUserLocations");
+      if (stored !== null) {
+        setShowUserLocations(stored === "true");
+      }
+    } catch (e) {
+      console.warn("Failed to read from localStorage:", e);
     }
   }, []);
 
   // 表示切替時の処理
   const handleToggleUserLocations = (checked: boolean) => {
     setShowUserLocations(checked);
-    localStorage.setItem("mbt_admin_showUserLocations", String(checked));
+    try {
+      localStorage.setItem("mbt_admin_showUserLocations", String(checked));
+    } catch (e) {
+      console.warn("Failed to write to localStorage:", e);
+    }
   };
 
   useEffect(() => {
+    let active = true;
+
     if (!showUserLocations) {
       setUserLocations([]);
       return;
@@ -32,12 +42,16 @@ export function useActiveLocations() {
     const fetchLocations = async () => {
       try {
         const res = await fetch("/api/locations");
-        if (res.ok) {
+        if (res.ok && active) {
           const data = (await res.json()) as { locations: UserLocation[] };
-          setUserLocations(data.locations || []);
+          if (active) {
+            setUserLocations(data.locations || []);
+          }
         }
       } catch (e) {
-        console.error("Failed to fetch user locations:", e);
+        if (active) {
+          console.error("Failed to fetch user locations:", e);
+        }
       }
     };
 
@@ -45,7 +59,10 @@ export function useActiveLocations() {
     // 管理画面のリアルタイム性を考慮し、15秒間隔でポーリングする
     const interval = setInterval(fetchLocations, 15000);
 
-    return () => clearInterval(interval);
+    return () => {
+      active = false;
+      clearInterval(interval);
+    };
   }, [showUserLocations]);
 
   return {

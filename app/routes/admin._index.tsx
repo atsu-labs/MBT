@@ -1,6 +1,7 @@
 import { useLoaderData, Link } from "react-router";
 import { useState } from "react";
 import Map from "~/components/Map";
+import AdminLocationToggle from "~/components/AdminLocationToggle";
 import { useActiveLocations } from "~/lib/useActiveLocations";
 import type { Case } from "~/lib/types";
 import { getAllCases } from "~/lib/db.server";
@@ -201,17 +202,10 @@ function DashboardMap({ cases }: DashboardMapProps) {
       <div className="card-header dashboard-panel-header">
         <h3 className="card-title">事案マップ</h3>
         <div style={{ display: "flex", alignItems: "center", gap: "1.5rem" }}>
-          <label className="admin-toggle-container">
-            <span className="admin-toggle-label">位置情報を表示</span>
-            <span className="admin-toggle">
-              <input
-                type="checkbox"
-                checked={showUserLocations}
-                onChange={(e) => toggleUserLocations(e.target.checked)}
-              />
-              <span className="admin-toggle-slider" />
-            </span>
-          </label>
+          <AdminLocationToggle
+            checked={showUserLocations}
+            onChange={toggleUserLocations}
+          />
           <Link
             to={
               mapViewport
