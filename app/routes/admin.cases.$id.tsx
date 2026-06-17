@@ -1,5 +1,6 @@
 import { useLoaderData, redirect, Link, Form } from "react-router";
 import Map from "~/components/Map";
+import { useActiveLocations } from "~/lib/useActiveLocations";
 import { getCaseById, deleteCase } from "~/lib/db.server";
 import { getCasePriorityLabel, getCaseStatusBadgeClass, getCaseStatusLabel, getCaseTeamLabel } from "~/lib/case-display";
 import "~/lib/context";
@@ -22,6 +23,7 @@ export async function action({ params, context }: Route.ActionArgs) {
 
 export default function CaseDetail() {
   const { caseItem } = useLoaderData<typeof loader>();
+  const { showUserLocations, userLocations, toggleUserLocations } = useActiveLocations();
 
   return (
     <div className="container">
@@ -106,12 +108,26 @@ export default function CaseDetail() {
         </div>
 
         <div>
-          <h3 style={{ fontSize: "1.1rem", marginBottom: "0.5rem" }}>地図</h3>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
+            <h3 style={{ fontSize: "1.1rem", margin: 0 }}>地図</h3>
+            <label className="admin-toggle-container">
+              <span className="admin-toggle-label">位置情報を表示</span>
+              <span className="admin-toggle">
+                <input
+                  type="checkbox"
+                  checked={showUserLocations}
+                  onChange={(e) => toggleUserLocations(e.target.checked)}
+                />
+                <span className="admin-toggle-slider" />
+              </span>
+            </label>
+          </div>
           <Map
             cases={[caseItem]}
             center={[caseItem.latitude, caseItem.longitude]}
             zoom={15}
             selectedCaseId={caseItem.id}
+            userLocations={userLocations}
           />
         </div>
       </div>

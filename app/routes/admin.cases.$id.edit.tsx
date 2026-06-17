@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useLoaderData, redirect, Link, Form } from "react-router";
 import Map from "~/components/Map";
+import { useActiveLocations } from "~/lib/useActiveLocations";
 import { getCaseById, updateCase } from "~/lib/db.server";
 import { CASE_STATUS_OPTIONS } from "~/lib/case-display";
 import "~/lib/context";
@@ -48,6 +49,7 @@ export async function action({ params, request, context }: Route.ActionArgs) {
 export default function EditCase() {
   const { caseItem } = useLoaderData<typeof loader>();
   const [formData, setFormData] = useState<Case>({ ...caseItem });
+  const { showUserLocations, userLocations, toggleUserLocations } = useActiveLocations();
 
   const handleMapClick = (lat: number, lng: number) => {
     setFormData({
@@ -226,7 +228,20 @@ export default function EditCase() {
 
         {/* 地図 */}
         <div className="card">
-          <h3 style={{ marginBottom: "1rem" }}>位置を選択</h3>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+            <h3 style={{ margin: 0 }}>位置を選択</h3>
+            <label className="admin-toggle-container">
+              <span className="admin-toggle-label">位置情報を表示</span>
+              <span className="admin-toggle">
+                <input
+                  type="checkbox"
+                  checked={showUserLocations}
+                  onChange={(e) => toggleUserLocations(e.target.checked)}
+                />
+                <span className="admin-toggle-slider" />
+              </span>
+            </label>
+          </div>
           <p style={{ color: "#666", marginBottom: "1rem", fontSize: "0.9rem" }}>
             地図をクリックして位置を変更できます
           </p>
@@ -236,6 +251,7 @@ export default function EditCase() {
             zoom={15}
             onMapClick={handleMapClick}
             selectedCaseId={formData.id}
+            userLocations={userLocations}
           />
         </div>
       </div>

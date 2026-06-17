@@ -1,6 +1,7 @@
 import { useLoaderData, Link } from "react-router";
 import { useState } from "react";
 import Map from "~/components/Map";
+import { useActiveLocations } from "~/lib/useActiveLocations";
 import type { Case } from "~/lib/types";
 import { getAllCases } from "~/lib/db.server";
 import { getCasePriorityLabel, getCaseStatusBadgeClass, getCaseStatusLabel, getCaseTeamLabel } from "~/lib/case-display";
@@ -193,25 +194,40 @@ interface DashboardMapProps {
 
 function DashboardMap({ cases }: DashboardMapProps) {
   const [mapViewport, setMapViewport] = useState<{ center: [number, number]; zoom: number } | null>(null);
+  const { showUserLocations, userLocations, toggleUserLocations } = useActiveLocations();
 
   return (
     <div className="card dashboard-panel dashboard-map-panel">
       <div className="card-header dashboard-panel-header">
         <h3 className="card-title">事案マップ</h3>
-        <Link
-          to={
-            mapViewport
-              ? `/admin/cases/new?lat=${mapViewport.center[0]}&lng=${mapViewport.center[1]}&zoom=${mapViewport.zoom}`
-              : "/admin/cases/new"
-          }
-          className="btn btn-primary"
-        >
-          新規事案作成
-        </Link>
+        <div style={{ display: "flex", alignItems: "center", gap: "1.5rem" }}>
+          <label className="admin-toggle-container">
+            <span className="admin-toggle-label">位置情報を表示</span>
+            <span className="admin-toggle">
+              <input
+                type="checkbox"
+                checked={showUserLocations}
+                onChange={(e) => toggleUserLocations(e.target.checked)}
+              />
+              <span className="admin-toggle-slider" />
+            </span>
+          </label>
+          <Link
+            to={
+              mapViewport
+                ? `/admin/cases/new?lat=${mapViewport.center[0]}&lng=${mapViewport.center[1]}&zoom=${mapViewport.zoom}`
+                : "/admin/cases/new"
+            }
+            className="btn btn-primary"
+          >
+            新規事案作成
+          </Link>
+        </div>
       </div>
       <div className="dashboard-map-wrapper">
         <Map
           cases={cases}
+          userLocations={userLocations}
           onViewportChange={(center, zoom) => setMapViewport({ center, zoom })}
         />
       </div>
