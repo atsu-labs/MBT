@@ -903,3 +903,69 @@ body {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
+/* 管理画面用位置情報トグル */
+.admin-toggle-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.admin-toggle-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #555;
+}
+
+.admin-toggle {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 22px;
+  flex-shrink: 0;
+}
+
+.admin-toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+}
+
+.admin-toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background: #bdc3c7;
+  border-radius: 22px;
+  transition: background-color 0.2s;
+}
+
+.admin-toggle-slider::before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 3px;
+  bottom: 3px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
+
+.admin-toggle input:checked + .admin-toggle-slider {
+  background: #3498db;
+}
+
+.admin-toggle input:checked + .admin-toggle-slider::before {
+  transform: translateX(18px);
+}
+
+.admin-toggle input:focus-visible + .admin-toggle-slider {
+  box-shadow: 0 0 0 2px #fff, 0 0 0 4px #3498db;
+}
+
+

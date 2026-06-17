@@ -1,6 +1,8 @@
 import { useState, useCallback } from "react";
 import { Form, redirect, useSearchParams } from "react-router";
 import Map from "~/components/Map";
+import AdminLocationToggle from "~/components/AdminLocationToggle";
+import { useActiveLocations } from "~/lib/useActiveLocations";
 import { createCase } from "~/lib/db.server";
 import { CASE_STATUS_OPTIONS } from "~/lib/case-display";
 import "~/lib/context";
@@ -61,6 +63,8 @@ export default function NewCase() {
     result: null,
   });
 
+  const { showUserLocations, userLocations, toggleUserLocations } = useActiveLocations();
+
   const handleMapClick = useCallback((lat: number, lng: number) => {
     setFormData((prev) => ({
       ...prev,
@@ -85,9 +89,15 @@ export default function NewCase() {
       <div className="case-new-layout">
         {/* 地図 */}
         <div className="card case-new-panel case-new-map-panel">
-          <div className="case-new-map-header">
-            <h3 className="card-title">位置を選択</h3>
-            <p className="case-new-map-hint">地図をクリックして位置を設定できます</p>
+          <div className="case-new-map-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div>
+              <h3 className="card-title">位置を選択</h3>
+              <p className="case-new-map-hint">地図をクリックして位置を設定できます</p>
+            </div>
+            <AdminLocationToggle
+              checked={showUserLocations}
+              onChange={toggleUserLocations}
+            />
           </div>
           <div className="case-new-map-wrapper">
             <Map
@@ -95,6 +105,7 @@ export default function NewCase() {
               center={[initialLat, initialLng]}
               zoom={initialZoom}
               onMapClick={handleMapClick}
+              userLocations={userLocations}
             />
           </div>
         </div>
