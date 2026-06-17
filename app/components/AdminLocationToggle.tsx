@@ -9,7 +9,7 @@ interface AdminLocationToggleProps {
 export default function AdminLocationToggle({ checked, onChange }: AdminLocationToggleProps) {
   return (
     <label className="admin-toggle-container">
-      <span className="admin-toggle-label">位置情報を表示</span>
+      <span className="admin-toggle-label">メンバーの位置情報を表示</span>
       <span className="admin-toggle">
         <input
           type="checkbox"
