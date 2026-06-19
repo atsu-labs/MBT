@@ -17,6 +17,7 @@ interface HelpStep {
 
 interface TabContent {
   title: string;
+  shortTitle: string;
   icon: string;
   steps: HelpStep[];
   tip: string;
@@ -25,6 +26,7 @@ interface TabContent {
 const tabContents: Record<TabType, TabContent> = {
   map: {
     title: "地図と事案の確認",
+    shortTitle: "地図と事案",
     icon: "map",
     steps: [
       {
@@ -47,6 +49,7 @@ const tabContents: Record<TabType, TabContent> = {
   },
   share: {
     title: "現在地と位置情報の共有",
+    shortTitle: "位置共有",
     icon: "my_location",
     steps: [
       {
@@ -64,6 +67,7 @@ const tabContents: Record<TabType, TabContent> = {
   },
   timeline: {
     title: "活動時間タイムライン",
+    shortTitle: "タイムライン",
     icon: "timeline",
     steps: [
       {
@@ -141,19 +145,27 @@ export default function MobileHelp() {
       </header>
 
       {/* タブナビゲーション */}
-      <nav style={{
-        display: "flex",
-        backgroundColor: "white",
-        borderBottom: "1px solid #e0e0e0",
-        flexShrink: 0,
-        padding: "4px 8px"
-      }}>
+      <nav 
+        role="tablist"
+        aria-label="使い方カテゴリ"
+        style={{
+          display: "flex",
+          backgroundColor: "white",
+          borderBottom: "1px solid #e0e0e0",
+          flexShrink: 0,
+          padding: "4px 8px"
+        }}
+      >
         {(Object.keys(tabContents) as TabType[]).map((tabKey) => {
           const tab = tabContents[tabKey];
           const isActive = activeTab === tabKey;
           return (
             <button
               key={tabKey}
+              id={`tab-${tabKey}`}
+              role="tab"
+              aria-selected={isActive}
+              aria-controls="help-tabpanel"
               onClick={() => handleTabChange(tabKey)}
               style={{
                 flex: 1,
@@ -172,7 +184,7 @@ export default function MobileHelp() {
               }}
             >
               <span className="material-icons" style={{ fontSize: "1.3rem" }}>{tab.icon}</span>
-              <span style={{ fontSize: "0.7rem", whiteSpace: "nowrap" }}>{tab.title.split("と")[0]}</span>
+              <span style={{ fontSize: "0.7rem", whiteSpace: "nowrap" }}>{tab.shortTitle}</span>
             </button>
           );
         })}
@@ -189,12 +201,17 @@ export default function MobileHelp() {
         paddingBottom: "2rem"
       }}>
         {/* 操作ステップと説明 */}
-        <div style={{
-          backgroundColor: "white",
-          borderRadius: "12px",
-          padding: "1rem",
-          boxShadow: "0 2px 6px rgba(0,0,0,0.05)"
-        }}>
+        <div 
+          id="help-tabpanel"
+          role="tabpanel"
+          aria-labelledby={`tab-${activeTab}`}
+          style={{
+            backgroundColor: "white",
+            borderRadius: "12px",
+            padding: "1rem",
+            boxShadow: "0 2px 6px rgba(0,0,0,0.05)"
+          }}
+        >
           <h2 style={{
             fontSize: "1.1rem",
             color: "#2c3e50",
@@ -216,6 +233,7 @@ export default function MobileHelp() {
                 <button
                   key={idx}
                   onClick={() => setActiveStepIdx(idx)}
+                  aria-pressed={isStepActive}
                   style={{
                     display: "flex",
                     alignItems: "flex-start",
