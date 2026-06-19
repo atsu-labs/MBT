@@ -204,13 +204,13 @@ export default function Index() {
           }
         }
       `}</style>
-      
+
       <div className="lp-container">
         <h1 className="lp-title">事案管理システム (MBT)</h1>
         <p className="lp-subtitle">
           位置情報を活用したリアルタイムな現場活動支援と事案管理
         </p>
-        
+
         <div className="lp-actions">
           <Link to="/admin" className="lp-btn lp-btn-primary">
             <span className="material-icons">dashboard</span>
@@ -221,7 +221,7 @@ export default function Index() {
             モバイル画面へ
           </Link>
         </div>
-        
+
         <div className="lp-qr-section">
           <div className="lp-qr-image-container">
             <img src={mobileQR} alt="モバイル用QRコード" className="lp-qr-image" />
@@ -232,11 +232,11 @@ export default function Index() {
               スマートフォンでのご利用
             </h3>
             <p className="lp-qr-text">
-              カメラアプリでこのQRコードを読み取ると、モバイル端末からすぐに現場マップ、位置共有機能、およびタイムラインをご利用いただけます。現場での活動や見回りにご活用ください。
+              カメラアプリでこのQRコードを読み取ると、モバイル端末からすぐに現場マップ、位置共有機能、およびタイムラインをご利用いただけます。現場での活動にご活用ください。
             </p>
           </div>
         </div>
-        
+
         <div className="lp-features">
           <h2 className="lp-features-title">主な機能</h2>
           <div className="lp-features-grid">
@@ -251,7 +251,7 @@ export default function Index() {
                 </p>
               </div>
             </div>
-            
+
             <div className="lp-feature-card">
               <div className="lp-feature-icon-container">
                 <span className="material-icons lp-feature-icon">my_location</span>
@@ -263,7 +263,7 @@ export default function Index() {
                 </p>
               </div>
             </div>
-            
+
             <div className="lp-feature-card">
               <div className="lp-feature-icon-container">
                 <span className="material-icons lp-feature-icon">timeline</span>
@@ -275,7 +275,7 @@ export default function Index() {
                 </p>
               </div>
             </div>
-            
+
             <div className="lp-feature-card">
               <div className="lp-feature-icon-container">
                 <span className="material-icons lp-feature-icon">stay_current_portrait</span>
