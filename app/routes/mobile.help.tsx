@@ -1,53 +1,93 @@
 import { useState } from "react";
 import { Link } from "react-router";
-import screenshotMap from "~/images/screenshot_map.png";
-import screenshotShare from "~/images/screenshot_share.png";
-import screenshotSheet from "~/images/screenshot_sheet.png";
+import ssMain from "~/images/SS-main.png";
+import ssPopup from "~/images/SS-popup.png";
+import ssCases from "~/images/SS-cases.png";
+import ssShare from "~/images/SS-share.png";
+import ssShareON from "~/images/SS-shareON.png";
+import ssTimeline from "~/images/SS-timeline.png";
 
 type TabType = "map" | "share" | "timeline";
 
+interface HelpStep {
+  text: string;
+  image: string;
+  note?: string;
+}
+
+interface TabContent {
+  title: string;
+  icon: string;
+  steps: HelpStep[];
+  tip: string;
+}
+
+const tabContents: Record<TabType, TabContent> = {
+  map: {
+    title: "地図と事案の確認",
+    icon: "map",
+    steps: [
+      {
+        text: "地図画面には、救護所（赤十字マーク）や関門（数字ピン）、コースラインが表示されます。",
+        image: ssMain,
+        note: "画面右上のチェックボックスで情報のフィルタリングが可能です。"
+      },
+      {
+        text: "地図上のピンをタップすると、事案の詳細ポップアップが表示されます。",
+        image: ssPopup,
+        note: "事案の内容（年齢や症状）、対応状況、優先度、対応者を確認できます。"
+      },
+      {
+        text: "画面下の「事案一覧」をタップすると、登録されている事案がボトムシートに一覧表示されます。",
+        image: ssCases,
+        note: "リスト内の事案をタップすると、地図がその場所へ自動で移動します。"
+      }
+    ],
+    tip: "マップは指でピンチイン・アウトすることで拡大縮小できます。右側の「＋」「ー」ボタンでも操作可能です。"
+  },
+  share: {
+    title: "現在地と位置情報の共有",
+    icon: "my_location",
+    steps: [
+      {
+        text: "ヘッダー右上の「位置共有」トグルをONにすると、共有設定ダイアログが表示されます。",
+        image: ssShare,
+        note: "表示名（あなたのお名前）と共通のパスコードを入力して「共有開始」をタップします。"
+      },
+      {
+        text: "共有が開始されるとトグルが緑色になり、地図上にあなたのピンが表示されます。",
+        image: ssShareON,
+        note: "「名前（あなた）」として青い丸ピンで地図上に現在地が表示され、他のメンバーとリアルタイムに共有されます。"
+      }
+    ],
+    tip: "位置情報の共有を停止したい場合は、ヘッダー右上のトグルを再度OFFにするだけで、共有データは即座に削除されます。"
+  },
+  timeline: {
+    title: "活動時間タイムライン",
+    icon: "timeline",
+    steps: [
+      {
+        text: "画面下の「タイムライン」をタップすると、各メンバーの活動状況がタイムライン表示されます。",
+        image: ssTimeline,
+        note: "誰が（MBT1〜17）、いつ、どのエリア（area1〜12）で活動しているかがカラーバーで可視化されます。"
+      }
+    ],
+    tip: "グループ行をピンチ・スクロールすることで、表示を拡大縮小できます。"
+  }
+};
+
 export default function MobileHelp() {
   const [activeTab, setActiveTab] = useState<TabType>("map");
-
-  const tabContents = {
-    map: {
-      title: "地図と事案の確認",
-      icon: "map",
-      image: screenshotMap,
-      steps: [
-        "地図上のピンをタップすると、その事案の詳細が確認できます。",
-        "画面下の「事案一覧」を押すと、登録されている事案がボトムシートで一覧表示されます。",
-        "事案一覧ではステータス（対応中、完了など）でフィルタリングが可能です。",
-        "リスト内の事案をタップすると、地図がその場所へ自動でジャンプします。"
-      ],
-      tip: "マップは指でピンチイン・アウトすることで拡大縮小できます。右側の「＋」「ー」ボタンでも操作可能です。"
-    },
-    share: {
-      title: "現在地と位置情報の共有",
-      icon: "my_location",
-      image: screenshotShare,
-      steps: [
-        "画面下の「現在地」ボタンを押すと、あなたの現在地にマップが移動します。",
-        "ヘッダー右上の「位置共有」トグルをONにすると、共有設定モーダルが開きます。",
-        "表示名（ニックネーム等）と共通のパスコードを入力して「共有開始」を押します。",
-        "共有中は、他のメンバーの地図上にもあなたの位置が表示されるようになります。"
-      ],
-      tip: "位置情報の共有を停止したい場合は、ヘッダー右上のトグルを再度OFFにするだけで、共有データは即座に削除されます。"
-    },
-    timeline: {
-      title: "タイムラインと更新",
-      icon: "timeline",
-      image: screenshotSheet,
-      steps: [
-        "画面下の「タイムライン」ボタンを押すと、事案の履歴を時系列（タイムライン形式）で確認できます。",
-        "地図画面や事案一覧を最新の状態にするには、画面下の「更新」ボタンをタップします。",
-        "タイムライン画面では、過去の対応経緯や完了した事案の流れが視覚的に把握できます。"
-      ],
-      tip: "現場の状況は刻一刻と変化します。定期的に「更新」ボタンをタップして最新情報を取り込んでください。"
-    }
-  };
+  const [activeStepIdx, setActiveStepIdx] = useState<number>(0);
 
   const currentContent = tabContents[activeTab];
+  const currentStepIdx = activeStepIdx < currentContent.steps.length ? activeStepIdx : 0;
+  const currentStep = currentContent.steps[currentStepIdx];
+
+  const handleTabChange = (tabKey: TabType) => {
+    setActiveTab(tabKey);
+    setActiveStepIdx(0);
+  };
 
   return (
     <div style={{
@@ -58,6 +98,13 @@ export default function MobileHelp() {
       fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
       overflow: "hidden"
     }}>
+      <style>{`
+        @keyframes fadeIn {
+          from { opacity: 0; transform: scale(0.98); }
+          to { opacity: 1; transform: scale(1); }
+        }
+      `}</style>
+
       {/* ヘッダー */}
       <header style={{
         backgroundColor: "#2c3e50",
@@ -107,7 +154,7 @@ export default function MobileHelp() {
           return (
             <button
               key={tabKey}
-              onClick={() => setActiveTab(tabKey)}
+              onClick={() => handleTabChange(tabKey)}
               style={{
                 flex: 1,
                 padding: "8px 4px",
@@ -141,7 +188,7 @@ export default function MobileHelp() {
         gap: "1.25rem",
         paddingBottom: "2rem"
       }}>
-        {/* タイトルと説明セクション */}
+        {/* 操作ステップと説明 */}
         <div style={{
           backgroundColor: "white",
           borderRadius: "12px",
@@ -152,7 +199,7 @@ export default function MobileHelp() {
             fontSize: "1.1rem",
             color: "#2c3e50",
             fontWeight: "700",
-            margin: "0 0 0.75rem 0",
+            margin: "0 0 1rem 0",
             display: "flex",
             alignItems: "center",
             gap: "0.5rem"
@@ -161,23 +208,73 @@ export default function MobileHelp() {
             {currentContent.title}
           </h2>
 
-          <ol style={{
-            margin: 0,
-            paddingLeft: "1.25rem",
-            color: "#4a5568",
-            fontSize: "0.875rem",
-            lineHeight: "1.6"
-          }}>
-            {currentContent.steps.map((step, idx) => (
-              <li key={idx} style={{ marginBottom: "0.5rem" }}>
-                {step}
-              </li>
-            ))}
-          </ol>
+          {/* ステップのリスト選択 */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+            {currentContent.steps.map((step, idx) => {
+              const isStepActive = idx === currentStepIdx;
+              return (
+                <button
+                  key={idx}
+                  onClick={() => setActiveStepIdx(idx)}
+                  style={{
+                    display: "flex",
+                    alignItems: "flex-start",
+                    gap: "0.75rem",
+                    padding: "0.75rem",
+                    border: isStepActive ? "1px solid #3498db" : "1px solid #e2e8f0",
+                    borderRadius: "8px",
+                    backgroundColor: isStepActive ? "#ebf8ff" : "white",
+                    textAlign: "left",
+                    cursor: "pointer",
+                    width: "100%",
+                    transition: "all 0.2s ease",
+                    boxShadow: isStepActive ? "0 2px 4px rgba(52, 152, 219, 0.1)" : "none"
+                  }}
+                >
+                  <span style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    minWidth: "24px",
+                    height: "24px",
+                    borderRadius: "50%",
+                    backgroundColor: isStepActive ? "#3498db" : "#7f8c8d",
+                    color: "white",
+                    fontSize: "0.8rem",
+                    fontWeight: "bold",
+                    flexShrink: 0
+                  }}>
+                    {idx + 1}
+                  </span>
+                  <div style={{ flex: 1 }}>
+                    <p style={{
+                      margin: 0,
+                      fontSize: "0.875rem",
+                      color: isStepActive ? "#2b6cb0" : "#4a5568",
+                      fontWeight: isStepActive ? "600" : "500",
+                      lineHeight: "1.4"
+                    }}>
+                      {step.text}
+                    </p>
+                    {step.note && (
+                      <p style={{
+                        margin: "0.25rem 0 0 0",
+                        fontSize: "0.75rem",
+                        color: isStepActive ? "#4299e1" : "#718096",
+                        lineHeight: "1.3"
+                      }}>
+                        {step.note}
+                      </p>
+                    )}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
 
           {/* ヒントブロック */}
           <div style={{
-            marginTop: "1rem",
+            marginTop: "1.25rem",
             padding: "0.75rem",
             backgroundColor: "#ebf8ff",
             borderLeft: "4px solid #3182ce",
@@ -230,31 +327,18 @@ export default function MobileHelp() {
               position: "relative"
             }}>
               <img
-                src={currentContent.image}
+                key={currentStep.image}
+                src={currentStep.image}
                 alt={currentContent.title}
                 style={{
                   width: "100%",
                   height: "100%",
-                  objectFit: "cover"
+                  objectFit: "cover",
+                  animation: "fadeIn 0.3s ease-in-out"
                 }}
               />
             </div>
           </div>
-        </div>
-
-        {/* 画像差し替えに関する注記 */}
-        <div style={{
-          backgroundColor: "#fffaf0",
-          border: "1px dashed #dd6b20",
-          borderRadius: "8px",
-          padding: "0.75rem",
-          fontSize: "0.75rem",
-          color: "#dd6b20",
-          lineHeight: "1.5",
-          textAlign: "center"
-        }}>
-          ※この画像はプレースホルダー（ダミー画像）です。<br />
-          実機のスクリーンショットを <code>app/images/</code> 内の同名PNGファイルに上書き保存することで、実際の画面表示に変更できます。
         </div>
       </div>
     </div>
