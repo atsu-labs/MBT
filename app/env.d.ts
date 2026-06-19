@@ -5,6 +5,11 @@ declare module "*.css?url" {
   export default value;
 }
 
+declare module "*.png" {
+  const value: string;
+  export default value;
+}
+
 declare global {
   interface Env {
     DB: D1Database;
