@@ -1,22 +1,73 @@
 {
   "groups": [
-    { "id": "1",  "content": "MBT1"  },
-    { "id": "2",  "content": "MBT2"  },
-    { "id": "3",  "content": "MBT3"  },
-    { "id": "4",  "content": "MBT4"  },
-    { "id": "5",  "content": "MBT5"  },
-    { "id": "6",  "content": "MBT6"  },
-    { "id": "7",  "content": "MBT7"  },
-    { "id": "8",  "content": "MBT8"  },
-    { "id": "9",  "content": "MBT9"  },
-    { "id": "10", "content": "MBT10" },
-    { "id": "11", "content": "MBT11" },
-    { "id": "12", "content": "MBT12" },
-    { "id": "13", "content": "MBT13" },
-    { "id": "14", "content": "MBT14" },
-    { "id": "15", "content": "MBT15" },
-    { "id": "16", "content": "MBT16" },
-    { "id": "17", "content": "MBT17" }
+    {
+      "id": "1",
+      "content": "MBT1"
+    },
+    {
+      "id": "2",
+      "content": "MBT2"
+    },
+    {
+      "id": "3",
+      "content": "MBT3"
+    },
+    {
+      "id": "4",
+      "content": "MBT4"
+    },
+    {
+      "id": "5",
+      "content": "MBT5"
+    },
+    {
+      "id": "6",
+      "content": "MBT6"
+    },
+    {
+      "id": "7",
+      "content": "MBT7"
+    },
+    {
+      "id": "8",
+      "content": "MBT8"
+    },
+    {
+      "id": "9",
+      "content": "MBT9"
+    },
+    {
+      "id": "10",
+      "content": "MBT10"
+    },
+    {
+      "id": "11",
+      "content": "MBT11"
+    },
+    {
+      "id": "12",
+      "content": "MBT12"
+    },
+    {
+      "id": "13",
+      "content": "MBT13"
+    },
+    {
+      "id": "14",
+      "content": "MBT14"
+    },
+    {
+      "id": "15",
+      "content": "MBT15"
+    },
+    {
+      "id": "16",
+      "content": "MBT16"
+    },
+    {
+      "id": "17",
+      "content": "MBT17"
+    }
   ],
   "items": [
     {
@@ -25,7 +76,7 @@
       "className": "area1",
       "style": "font-size:10pt;",
       "start": "2026-06-28T09:14:00",
-      "end":   "2026-06-28T10:01:00"
+      "end": "2026-06-28T10:01:00"
     },
     {
       "group": "1",
@@ -33,7 +84,7 @@
       "className": "area2",
       "style": "font-size:10pt;",
       "start": "2026-06-28T10:06:00",
-      "end":   "2026-06-28T11:55:00"
+      "end": "2026-06-28T11:55:00"
     },
     {
       "group": "1",
@@ -41,7 +92,7 @@
       "className": "area8",
       "style": "font-size:10pt;",
       "start": "2026-06-28T12:10:00",
-      "end":   "2026-06-28T13:13:00"
+      "end": "2026-06-28T13:13:00"
     },
     {
       "group": "1",
@@ -49,7 +100,7 @@
       "className": "area12",
       "style": "font-size:10pt;",
       "start": "2026-06-28T13:18:00",
-      "end":   "2026-06-28T14:58:00"
+      "end": "2026-06-28T14:58:00"
     },
     {
       "group": "2",
@@ -57,7 +108,7 @@
       "className": "area1",
       "style": "font-size:10pt;",
       "start": "2026-06-28T09:02:00",
-      "end":   "2026-06-28T09:38:00"
+      "end": "2026-06-28T09:38:00"
     },
     {
       "group": "2",
@@ -65,7 +116,7 @@
       "className": "area12",
       "style": "font-size:10pt;",
       "start": "2026-06-28T09:53:00",
-      "end":   "2026-06-28T14:58:00"
+      "end": "2026-06-28T14:58:00"
     },
     {
       "group": "3",
@@ -73,7 +124,7 @@
       "className": "area2",
       "style": "font-size:10pt;",
       "start": "2026-06-28T09:17:00",
-      "end":   "2026-06-28T11:55:00"
+      "end": "2026-06-28T11:55:00"
     },
     {
       "group": "3",
@@ -81,7 +132,7 @@
       "className": "area9",
       "style": "font-size:10pt;",
       "start": "2026-06-28T12:15:00",
-      "end":   "2026-06-28T14:47:00"
+      "end": "2026-06-28T14:47:00"
     },
     {
       "group": "4",
@@ -89,7 +140,7 @@
       "className": "area3",
       "style": "font-size:10pt;",
       "start": "2026-06-28T09:20:00",
-      "end":   "2026-06-28T11:38:00"
+      "end": "2026-06-28T11:38:00"
     },
     {
       "group": "4",
@@ -97,7 +148,7 @@
       "className": "area12",
       "style": "font-size:10pt;",
       "start": "2026-06-28T12:03:00",
-      "end":   "2026-06-28T14:58:00"
+      "end": "2026-06-28T14:58:00"
     },
     {
       "group": "5",
@@ -105,15 +156,15 @@
       "className": "area4",
       "style": "font-size:10pt;",
       "start": "2026-06-28T09:30:00",
-      "end":   "2026-06-28T11:38:00"
+      "end": "2026-06-28T11:23:00"
     },
     {
       "group": "5",
       "content": "area12",
       "className": "area12",
       "style": "font-size:10pt;",
-      "start": "2026-06-28T12:03:00",
-      "end":   "2026-06-28T14:58:00"
+      "start": "2026-06-28T12:13:00",
+      "end": "2026-06-28T14:58:00"
     },
     {
       "group": "6",
@@ -121,7 +172,7 @@
       "className": "area5",
       "style": "font-size:10pt;",
       "start": "2026-06-28T09:38:00",
-      "end":   "2026-06-28T11:16:00"
+      "end": "2026-06-28T11:16:00"
     },
     {
       "group": "6",
@@ -129,7 +180,7 @@
       "className": "area6",
       "style": "font-size:10pt;",
       "start": "2026-06-28T11:51:00",
-      "end":   "2026-06-28T13:03:00"
+      "end": "2026-06-28T13:03:00"
     },
     {
       "group": "7",
@@ -137,7 +188,7 @@
       "className": "area6",
       "style": "font-size:10pt;",
       "start": "2026-06-28T09:34:00",
-      "end":   "2026-06-28T13:03:00"
+      "end": "2026-06-28T13:03:00"
     },
     {
       "group": "7",
@@ -145,7 +196,7 @@
       "className": "area10",
       "style": "font-size:10pt;",
       "start": "2026-06-28T13:18:00",
-      "end":   "2026-06-28T14:35:00"
+      "end": "2026-06-28T14:35:00"
     },
     {
       "group": "8",
@@ -153,7 +204,7 @@
       "className": "area7",
       "style": "font-size:10pt;",
       "start": "2026-06-28T09:40:00",
-      "end":   "2026-06-28T12:50:00"
+      "end": "2026-06-28T12:50:00"
     },
     {
       "group": "8",
@@ -161,7 +212,7 @@
       "className": "area11",
       "style": "font-size:10pt;",
       "start": "2026-06-28T13:00:00",
-      "end":   "2026-06-28T14:23:00"
+      "end": "2026-06-28T14:23:00"
     },
     {
       "group": "9",
@@ -169,7 +220,7 @@
       "className": "area7",
       "style": "font-size:10pt;",
       "start": "2026-06-28T09:40:00",
-      "end":   "2026-06-28T12:50:00"
+      "end": "2026-06-28T12:50:00"
     },
     {
       "group": "9",
@@ -177,7 +228,7 @@
       "className": "area11",
       "style": "font-size:10pt;",
       "start": "2026-06-28T13:00:00",
-      "end":   "2026-06-28T14:23:00"
+      "end": "2026-06-28T14:23:00"
     },
     {
       "group": "10",
@@ -185,7 +236,7 @@
       "className": "area8",
       "style": "font-size:10pt;",
       "start": "2026-06-28T09:54:00",
-      "end":   "2026-06-28T13:13:00"
+      "end": "2026-06-28T13:13:00"
     },
     {
       "group": "10",
@@ -193,7 +244,7 @@
       "className": "area9",
       "style": "font-size:10pt;",
       "start": "2026-06-28T13:18:00",
-      "end":   "2026-06-28T14:47:00"
+      "end": "2026-06-28T14:47:00"
     },
     {
       "group": "11",
@@ -201,7 +252,7 @@
       "className": "area8",
       "style": "font-size:10pt;",
       "start": "2026-06-28T09:54:00",
-      "end":   "2026-06-28T13:13:00"
+      "end": "2026-06-28T13:13:00"
     },
     {
       "group": "11",
@@ -209,7 +260,7 @@
       "className": "area10",
       "style": "font-size:10pt;",
       "start": "2026-06-28T13:23:00",
-      "end":   "2026-06-28T14:35:00"
+      "end": "2026-06-28T14:35:00"
     },
     {
       "group": "12",
@@ -217,7 +268,7 @@
       "className": "area9",
       "style": "font-size:10pt;",
       "start": "2026-06-28T10:36:00",
-      "end":   "2026-06-28T14:47:00"
+      "end": "2026-06-28T14:47:00"
     },
     {
       "group": "13",
@@ -225,7 +276,7 @@
       "className": "area10",
       "style": "font-size:10pt;",
       "start": "2026-06-28T10:41:00",
-      "end":   "2026-06-28T14:35:00"
+      "end": "2026-06-28T14:35:00"
     },
     {
       "group": "14",
@@ -233,7 +284,7 @@
       "className": "area10",
       "style": "font-size:10pt;",
       "start": "2026-06-28T10:41:00",
-      "end":   "2026-06-28T14:35:00"
+      "end": "2026-06-28T14:35:00"
     },
     {
       "group": "15",
@@ -241,15 +292,15 @@
       "className": "area12",
       "style": "font-size:10pt;",
       "start": "2026-06-28T09:58:00",
-      "end":   "2026-06-28T14:58:00"
+      "end": "2026-06-28T14:58:00"
     },
     {
       "group": "16",
       "content": "area3,4,5",
       "className": "area345",
       "style": "font-size:10pt;",
-      "start": "2026-06-28T09:39:00",
-      "end":   "2026-06-28T11:38:00"
+      "start": "2026-06-28T09:30:00",
+      "end": "2026-06-28T11:38:00"
     },
     {
       "group": "16",
@@ -257,7 +308,7 @@
       "className": "area11",
       "style": "font-size:10pt;",
       "start": "2026-06-28T12:18:00",
-      "end":   "2026-06-28T14:23:00"
+      "end": "2026-06-28T14:23:00"
     },
     {
       "group": "17",
@@ -265,7 +316,7 @@
       "className": "area67",
       "style": "font-size:10pt;",
       "start": "2026-06-28T09:40:00",
-      "end":   "2026-06-28T10:26:00"
+      "end": "2026-06-28T10:26:00"
     },
     {
       "group": "17",
@@ -273,7 +324,7 @@
       "className": "area11",
       "style": "font-size:10pt;",
       "start": "2026-06-28T10:41:00",
-      "end":   "2026-06-28T14:23:00"
+      "end": "2026-06-28T14:23:00"
     }
   ]
 }
