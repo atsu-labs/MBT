@@ -61,24 +61,50 @@ export default function EditCase() {
   };
 
   return (
-    <div className="container">
-      <div style={{ marginBottom: "1.5rem" }}>
-        <Link
-          to={`/admin/cases/${formData.id}`}
-          style={{ color: "#3498db", textDecoration: "none" }}
-        >
-          ← 詳細に戻る
-        </Link>
-      </div>
+    <div className="container case-layout-container">
+      <div className="case-layout-grid">
+        {/* 地図 */}
+        <div className="card case-layout-panel case-layout-map-panel">
+          <div className="case-layout-map-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div>
+              <h3 className="card-title">位置を変更</h3>
+              <p className="case-layout-map-hint">
+                地図をクリックして位置を変更できます
+              </p>
+            </div>
+            <AdminLocationToggle
+              checked={showUserLocations}
+              onChange={toggleUserLocations}
+            />
+          </div>
+          <div className="case-layout-map-wrapper">
+            <Map
+              cases={[formData]}
+              center={[formData.latitude, formData.longitude]}
+              zoom={15}
+              onMapClick={handleMapClick}
+              selectedCaseId={formData.id}
+              userLocations={userLocations}
+            />
+          </div>
+        </div>
 
-      <h2 style={{ marginBottom: "1.5rem", fontSize: "1.8rem" }}>
-        事案編集 (No.{formData.id})
-      </h2>
-
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2rem" }}>
         {/* フォーム */}
-        <div className="card">
-          <Form method="post">
+        <div className="card case-layout-panel case-layout-form-panel">
+          <div style={{ marginBottom: "1rem", flexShrink: 0 }}>
+            <Link
+              to={`/admin/cases/${formData.id}`}
+              style={{ color: "#3498db", textDecoration: "none", fontSize: "0.9rem" }}
+            >
+              ← 詳細に戻る
+            </Link>
+          </div>
+
+          <h2 style={{ marginBottom: "1.25rem", fontSize: "1.6rem", flexShrink: 0 }}>
+            事案編集 (No.{formData.id})
+          </h2>
+
+          <Form method="post" className="case-layout-form">
             <div className="form-group">
               <label htmlFor="title">タイトル *</label>
               <input
@@ -213,7 +239,7 @@ export default function EditCase() {
               />
             </div>
 
-            <div style={{ display: "flex", gap: "1rem", marginTop: "1.5rem" }}>
+            <div className="case-layout-actions">
               <button type="submit" className="btn btn-primary">
                 更新
               </button>
@@ -225,28 +251,6 @@ export default function EditCase() {
               </a>
             </div>
           </Form>
-        </div>
-
-        {/* 地図 */}
-        <div className="card">
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
-            <h3 style={{ margin: 0 }}>位置を選択</h3>
-            <AdminLocationToggle
-              checked={showUserLocations}
-              onChange={toggleUserLocations}
-            />
-          </div>
-          <p style={{ color: "#666", marginBottom: "1rem", fontSize: "0.9rem" }}>
-            地図をクリックして位置を変更できます
-          </p>
-          <Map
-            cases={[formData]}
-            center={[formData.latitude, formData.longitude]}
-            zoom={15}
-            onMapClick={handleMapClick}
-            selectedCaseId={formData.id}
-            userLocations={userLocations}
-          />
         </div>
       </div>
     </div>
