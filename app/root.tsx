@@ -10,6 +10,7 @@ import stylesheet from "./styles/app.css?url";
 import caseMarkerStyles from "./styles/case-marker.css?url";
 
 export const links = () => [
+  { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
   { rel: "stylesheet", href: stylesheet },
   { rel: "stylesheet", href: caseMarkerStyles },
   { rel: "stylesheet", href: "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" },
