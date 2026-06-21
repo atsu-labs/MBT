@@ -180,7 +180,8 @@ const Map = forwardRef<MapHandle, MapProps>(function Map({
 
     // 地図の作成（zoomControl: false でデフォルトズームUIを非表示にし、カスタムボタンと重複しないようにする）
     // center と zoom は初期表示時のみ使用する
-    const map = L.map(mapRef.current, { zoomControl: false }).setView(center, zoom);
+    const validCenter: [number, number] = (isNaN(center[0]) || isNaN(center[1])) ? [41.786085560648345, 140.7452487945557] : center;
+    const map = L.map(mapRef.current, { zoomControl: false }).setView(validCenter, zoom);
 
     // タイルレイヤーの追加（OpenStreetMap）
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -367,6 +368,7 @@ const Map = forwardRef<MapHandle, MapProps>(function Map({
 
     // 新しいマーカーを追加
     cases.forEach((caseItem) => {
+      if (isNaN(caseItem.latitude) || isNaN(caseItem.longitude)) return;
       const isSelected = selectedCaseId === caseItem.id;
       const icon = createCaseIcon(caseItem, isSelected, L);
       if (!icon) return; // SSR や Leaflet 未ロード時はスキップ
@@ -387,6 +389,7 @@ const Map = forwardRef<MapHandle, MapProps>(function Map({
 
     // ユーザーの位置情報マーカーを追加
     userLocations.forEach((loc) => {
+      if (isNaN(loc.latitude) || isNaN(loc.longitude)) return;
       const isMe = mySessionId === loc.session_id;
       const markerHtml = isMe
         ? `<div style="background-color: #3b82f6; width: 16px; height: 16px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 5px rgba(0,0,0,0.5);"></div>`
@@ -404,7 +407,7 @@ const Map = forwardRef<MapHandle, MapProps>(function Map({
       const marker = L.marker([loc.latitude, loc.longitude], { icon })
         .addTo(map)
         .bindTooltip(tooltipContent, { permanent: true, direction: "top", offset: [0, -10], className: "user-tooltip", opacity: 0.9 })
-        .bindPopup(`<b>${loc.user_name}</b><br>最終更新: ${new Date(loc.updated_at).toLocaleTimeString("ja-JP")}`);
+        .bindPopup(`<b>${loc.user_name}</b><br>最終更新: ${new Date(loc.updated_at).toLocaleTimeString("ja-JP", { timeZone: "Asia/Tokyo" })}`);
 
       markers.set(`user_${loc.session_id}`, marker);
     });

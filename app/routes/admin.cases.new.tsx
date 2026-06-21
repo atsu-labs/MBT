@@ -85,21 +85,21 @@ export default function NewCase() {
   };
 
   return (
-    <div className="container case-new-container">
-      <div className="case-new-layout">
+    <div className="container case-layout-container">
+      <div className="case-layout-grid">
         {/* 地図 */}
-        <div className="card case-new-panel case-new-map-panel">
-          <div className="case-new-map-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div className="card case-layout-panel case-layout-map-panel">
+          <div className="case-layout-map-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div>
               <h3 className="card-title">位置を選択</h3>
-              <p className="case-new-map-hint">地図をクリックして位置を設定できます</p>
+              <p className="case-layout-map-hint">地図をクリックして位置を設定できます</p>
             </div>
             <AdminLocationToggle
               checked={showUserLocations}
               onChange={toggleUserLocations}
             />
           </div>
-          <div className="case-new-map-wrapper">
+          <div className="case-layout-map-wrapper">
             <Map
               cases={[previewCase]}
               center={[initialLat, initialLng]}
@@ -111,8 +111,8 @@ export default function NewCase() {
         </div>
 
         {/* フォーム */}
-        <div className="card case-new-panel case-new-form-panel">
-          <Form method="post" className="case-new-form">
+        <div className="card case-layout-panel case-layout-form-panel">
+          <Form method="post" className="case-layout-form">
             <div className="form-group">
               <label htmlFor="title">タイトル *</label>
               <input
@@ -247,7 +247,7 @@ export default function NewCase() {
               />
             </div>
 
-            <div className="case-new-actions">
+            <div className="case-layout-actions">
               <button type="submit" className="btn btn-primary">
                 作成
               </button>
