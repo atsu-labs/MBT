@@ -122,10 +122,10 @@ export default function CaseDetail() {
               <label>日時</label>
               <div style={{ color: "#555", background: "#f8f9fa", padding: "0.75rem", borderRadius: "4px", fontSize: "0.9rem" }}>
                 <p style={{ marginBottom: "0.25rem" }}>
-                  作成日: {new Date(caseItem.created_at).toLocaleString("ja-JP")}
+                  作成日: {new Date(caseItem.created_at).toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" })}
                 </p>
                 <p style={{ margin: 0 }}>
-                  更新日: {new Date(caseItem.updated_at).toLocaleString("ja-JP")}
+                  更新日: {new Date(caseItem.updated_at).toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" })}
                 </p>
               </div>
             </div>
