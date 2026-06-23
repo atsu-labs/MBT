@@ -113,8 +113,7 @@ export const firstAid = {
     },
   ]
 };
-export const gate =
-{
+export const gate = {
   "type": "FeatureCollection",
   "features": [
     {
@@ -326,8 +325,7 @@ export const gate =
     }
   ]
 };
-export const aid =
-{
+export const aid = {
   "type": "FeatureCollection",
   "features": [
     {
@@ -641,8 +639,7 @@ export const aid =
   ]
 };
 
-export const aed =
-{
+export const aed = {
   "type": "FeatureCollection",
   "features": [
     {
