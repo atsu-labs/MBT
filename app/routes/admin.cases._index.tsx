@@ -39,6 +39,21 @@ export default function CasesList() {
     fetcher.submit({ id: String(id) }, { method: "post" });
   };
 
+  // フィルタリングとソート
+  const filteredCases = cases
+    .filter((c) => {
+      if (filter === "all") return true;
+      return c.status === filter;
+    })
+    .sort((a, b) => {
+      if (sortBy === "created") {
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      } else {
+        const priorityOrder = { high: 3, medium: 2, low: 1 };
+        return priorityOrder[b.priority] - priorityOrder[a.priority];
+      }
+    });
+
   const handleDownloadCSV = () => {
     // 1. ヘッダー定義
     const headers = [
@@ -68,12 +83,12 @@ export default function CasesList() {
     };
 
     // 3. データ行の構築
-    const rows = cases.map((c) => {
+    const rows = filteredCases.map((c) => {
       const statusLabel = getCaseStatusLabel(c.status);
       const priorityLabel = getCasePriorityLabel(c.priority);
       const teamLabel = getCaseTeamLabel(c.assigned_team);
-      const createdAtJST = new Date(c.created_at).toLocaleString("ja-JP");
-      const updatedAtJST = new Date(c.updated_at).toLocaleString("ja-JP");
+      const createdAtJST = new Date(c.created_at).toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" });
+      const updatedAtJST = new Date(c.updated_at).toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" });
 
       return [
         c.id,
@@ -111,21 +126,6 @@ export default function CasesList() {
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
   };
-
-  // フィルタリングとソート
-  const filteredCases = cases
-    .filter((c) => {
-      if (filter === "all") return true;
-      return c.status === filter;
-    })
-    .sort((a, b) => {
-      if (sortBy === "created") {
-        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-      } else {
-        const priorityOrder = { high: 3, medium: 2, low: 1 };
-        return priorityOrder[b.priority] - priorityOrder[a.priority];
-      }
-    });
 
   return (
     <div className="container">
