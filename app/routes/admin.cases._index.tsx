@@ -39,6 +39,79 @@ export default function CasesList() {
     fetcher.submit({ id: String(id) }, { method: "post" });
   };
 
+  const handleDownloadCSV = () => {
+    // 1. ヘッダー定義
+    const headers = [
+      "ID",
+      "タイトル",
+      "詳細",
+      "ステータス",
+      "優先度",
+      "担当チーム",
+      "対応結果",
+      "緯度",
+      "経度",
+      "作成日時",
+      "更新日時"
+    ];
+
+    // 2. CSV値のエスケープ処理
+    const escapeCSV = (val: string | null | number) => {
+      if (val === null || val === undefined) {
+        return "";
+      }
+      const str = String(val);
+      if (str.includes('"') || str.includes(",") || str.includes("\n") || str.includes("\r")) {
+        return `"${str.replace(/"/g, '""')}"`;
+      }
+      return str;
+    };
+
+    // 3. データ行の構築
+    const rows = cases.map((c) => {
+      const statusLabel = getCaseStatusLabel(c.status);
+      const priorityLabel = getCasePriorityLabel(c.priority);
+      const teamLabel = getCaseTeamLabel(c.assigned_team);
+      const createdAtJST = new Date(c.created_at).toLocaleString("ja-JP");
+      const updatedAtJST = new Date(c.updated_at).toLocaleString("ja-JP");
+
+      return [
+        c.id,
+        c.title,
+        c.description || "",
+        statusLabel,
+        priorityLabel,
+        teamLabel,
+        c.result || "",
+        c.latitude,
+        c.longitude,
+        createdAtJST,
+        updatedAtJST
+      ].map(escapeCSV).join(",");
+    });
+
+    const csvContent = [headers.join(","), ...rows].join("\r\n");
+
+    // 4. BOM付きUTF-8の作成
+    const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
+    const blob = new Blob([bom, csvContent], { type: "text/csv;charset=utf-8;" });
+
+    // 5. ダウンロード実行
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    
+    const now = new Date();
+    const pad = (n: number) => String(n).padStart(2, "0");
+    const timestamp = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+    link.setAttribute("download", `cases_${timestamp}.csv`);
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   // フィルタリングとソート
   const filteredCases = cases
     .filter((c) => {
@@ -59,9 +132,14 @@ export default function CasesList() {
       <div style={{ marginBottom: "1.5rem" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
           <h2 style={{ fontSize: "1.8rem" }}>事案一覧</h2>
-          <Link to="/admin/cases/new" className="btn btn-primary">
-            新規作成
-          </Link>
+          <div style={{ display: "flex", gap: "0.5rem" }}>
+            <button onClick={handleDownloadCSV} className="btn btn-secondary">
+              CSV出力
+            </button>
+            <Link to="/admin/cases/new" className="btn btn-primary">
+              新規作成
+            </Link>
+          </div>
         </div>
 
         {/* フィルターとソート */}
