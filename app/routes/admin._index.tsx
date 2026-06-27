@@ -24,7 +24,12 @@ export default function AdminDashboard() {
   const completedCases = cases.filter((c) => c.status === "completed");
 
   // 最近の事案（未完了事案のみ）
-  const recentCases = activeCases.slice(0, 20);
+  const recentCases = [...activeCases]
+    .sort(
+      (left, right) =>
+        new Date(right.created_at).getTime() - new Date(left.created_at).getTime()
+    )
+    .slice(0, 20);
 
   // 最近の完了事案
   const recentCompletedCases = [...completedCases]
